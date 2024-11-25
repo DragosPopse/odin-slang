@@ -188,13 +188,13 @@ OptimizationLevel :: enum u32 {
 }
 
 // Note(Dragos): the enum integral is not specified here
-EmitSpirvMethod :: enum {
+EmitSpirvMethod :: enum i32 {
 	DEFAULT,
 	VIA_GLSL,
 	DIRECTLY,
 }
 
-CompilerOptionName :: enum {
+CompilerOptionName :: enum i32 {
 	MacroDefine, // stringValue0: macro name;  stringValue1: macro value
 	DepFile,
 	EntryPointName,
@@ -323,7 +323,7 @@ CompilerOptionName :: enum {
 	EmitSpirvMethod, // enum SlangEmitSpirvMethod
 }
 
-CompilerOptionValueKind :: enum {
+CompilerOptionValueKind :: enum i32 {
 	Int,
 	String,
 }
@@ -660,7 +660,7 @@ PreprocessorMacroDesc :: struct {
 	value: cstring,
 }
 
-SessionFlags :: enum { }
+SessionFlags :: enum i32 { }
 
 SessionDesc :: struct {
 	structureSize           : uint,
@@ -681,7 +681,7 @@ SessionDesc :: struct {
 
 
 
-ReflectionGenericArgType :: enum {
+ReflectionGenericArgType :: enum u32 {
 	TYPE,
 	INT,
 	BOOL,
@@ -909,7 +909,7 @@ TypeLayoutReflection :: struct {
 	
 }
 
-ContainerType :: enum {
+ContainerType :: enum i32 {
 	None,
 	UnsizedArray,
 	StructuredBuffer,
