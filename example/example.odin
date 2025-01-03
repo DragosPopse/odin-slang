@@ -16,7 +16,7 @@ import vk "vendor:vulkan"
 import sp "../slang"
 
 slang_check :: #force_inline proc(#any_int result: int, loc := #caller_location) {
-	result :=- sp.Result(result)
+	result := sp.Result(result)
 	if sp.FAILED(result) {
 		code := sp.GET_RESULT_CODE(result)
 		facility := sp.GET_RESULT_FACILITY(result)
@@ -109,17 +109,19 @@ reload_shader_pipelines :: proc(renderer: ^Renderer, global_session: ^sp.IGlobal
 	diagnostics_check(diagnostics)
 
 	vertex_entry: ^IEntryPoint
-	module->findEntryPointByName("vertex", &vertex_entry)
+	r = module->findEntryPointByName("vertexmain", &vertex_entry)
+	slang_check(r)
 
 	fragment_entry: ^IEntryPoint
-	module->findEntryPointByName("fragment", &fragment_entry)
+	r = module->findEntryPointByName("fragmentmain", &fragment_entry)
+	slang_check(r)
 
 	if vertex_entry == nil {
-		fmt.println("Expected 'vertex' entry point")
+		fmt.println("Expected 'vertexmain' entry point")
 		return;
 	}
 	if fragment_entry == nil {
-		fmt.println("Expected 'fragment' entry point")
+		fmt.println("Expected 'fragmentmain' entry point")
 		return;
 	}
 
@@ -190,13 +192,13 @@ reload_shader_pipelines :: proc(renderer: ^Renderer, global_session: ^sp.IGlobal
 					sType = .PIPELINE_SHADER_STAGE_CREATE_INFO,
 					stage = {.VERTEX},
 					module = vk_module,
-					pName = "vertex",
+					pName = "vertexmain",
 				},
 				{
 					sType = .PIPELINE_SHADER_STAGE_CREATE_INFO,
 					stage = {.FRAGMENT},
 					module = vk_module,
-					pName = "fragment",
+					pName = "fragmentmain",
 				},
 			},
 		),
@@ -404,7 +406,7 @@ main :: proc() {
 			},
 			colorAttachmentCount = 1,
 		}
-		vk.CmdBeginRendering(cmd, &render_info)
+		vk.CmdBeginRenderingKHR(cmd, &render_info)
 
 		viewport := vk.Viewport {
 			x        = 0,
@@ -428,7 +430,7 @@ main :: proc() {
 		// Draw triangle
 		vk.CmdDrawIndexed(cmd, 3, 1, 0, 0, 0)
 
-		vk.CmdEndRendering(cmd)
+		vk.CmdEndRenderingKHR(cmd)
 		// End Geometry Pass
 
 		// End drawing
@@ -489,7 +491,7 @@ main :: proc() {
 			pRegions       = &blit_region,
 		}
 
-		vk.CmdBlitImage2(cmd, &blit_info)
+		vk.CmdBlitImage2KHR(cmd, &blit_info)
 
 		transition_image(
 			cmd,
@@ -537,7 +539,7 @@ main :: proc() {
 		}
 
 		vk_check(
-			vk.QueueSubmit2(
+			vk.QueueSubmit2KHR(
 				renderer.graphics_queue,
 				1,
 				&submit,
@@ -610,10 +612,11 @@ REQUIRED_VK_13_FEATURES := vk.PhysicalDeviceVulkan13Features {
 // Set required extensions to support.
 DEVICE_EXTENSIONS := []cstring {
 	vk.KHR_SWAPCHAIN_EXTENSION_NAME,
-	vk.KHR_DYNAMIC_RENDERING_EXTENSION_NAME, // Enabled by default in 1.3
+	vk.KHR_SYNCHRONIZATION_2_EXTENSION_NAME,        // Enabled by default in 1.3
+	vk.KHR_COPY_COMMANDS_2_EXTENSION_NAME,          // Enabled by default in 1.3
+	vk.KHR_DYNAMIC_RENDERING_EXTENSION_NAME,        // Enabled by default in 1.3
 	vk.KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME, // Enabled by default in 1.3
 }
-
 // Set validation layers to enable.
 VALIDATION_LAYERS := []cstring{"VK_LAYER_KHRONOS_validation"}
 
@@ -764,7 +767,7 @@ end_immediate_submit :: proc(renderer: ^Renderer) {
 
 	// submit command buffer to the queue and execute it.
 	//  _renderFence will now block until the graphic commands finish execution
-	vk_check(vk.QueueSubmit2(renderer.graphics_queue, 1, &submit, renderer.imm_fence))
+	vk_check(vk.QueueSubmit2KHR(renderer.graphics_queue, 1, &submit, renderer.imm_fence))
 
 	vk_check(vk.WaitForFences(renderer.device, 1, &renderer.imm_fence, true, 9_999_999_999))
 }
@@ -988,7 +991,7 @@ transition_image :: proc(
 		},
 	}
 
-	vk.CmdPipelineBarrier2(cmd, &dep_info)
+	vk.CmdPipelineBarrier2KHR(cmd, &dep_info)
 }
 
 init_vulkan :: proc(renderer: ^Renderer) {
@@ -1006,6 +1009,9 @@ init_vulkan :: proc(renderer: ^Renderer) {
 		extensions[i] = ext
 	}
 
+	when ODIN_OS == .Darwin {
+		append(&extensions, vk.KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)
+	}
 	append(&extensions, vk.EXT_DEBUG_UTILS_EXTENSION_NAME)
 	defer delete(extensions)
 
@@ -1034,6 +1040,10 @@ init_vulkan :: proc(renderer: ^Renderer) {
 		enabledExtensionCount   = cast(u32)len(extensions),
 		enabledLayerCount       = u32(len(VALIDATION_LAYERS)),
 		ppEnabledLayerNames     = raw_data(VALIDATION_LAYERS),
+	}
+
+	when ODIN_OS == .Darwin {
+		create_info.flags = {vk.InstanceCreateFlag.ENUMERATE_PORTABILITY_KHR}
 	}
 
 	vk_check(vk.CreateInstance(&create_info, nil, &renderer.instance))
@@ -1072,6 +1082,12 @@ init_vulkan :: proc(renderer: ^Renderer) {
 
 	vk_check(glfw.CreateWindowSurface(renderer.instance, renderer.window, nil, &renderer.surface))
 
+	device_extensions: [dynamic]cstring
+	resize(&device_extensions, len(DEVICE_EXTENSIONS))
+	for ext, i in DEVICE_EXTENSIONS {
+		device_extensions[i] = ext
+	}
+
 	{
 		device_count: u32 = 0
 		vk.EnumeratePhysicalDevices(renderer.instance, &device_count, nil)
@@ -1098,6 +1114,33 @@ init_vulkan :: proc(renderer: ^Renderer) {
 
 		if renderer.physical_device == nil {
 			panic("No GPU found that supports all required features.")
+		}
+
+		// In accordance with the Vulkan specification, if VK_KHR_portability_subset
+		// is in the device extensions, then it must be part of the enabled extensions
+		// when creating the device.
+		//
+		// We check here to see if that extension is present, and then add it to our
+		// list of enabled device extensions if it is.
+		//
+		// This is required for Vulkan support on macOS via MoltenVK.
+
+		n_dev_ext: u32
+		vk.EnumerateDeviceExtensionProperties(renderer.physical_device, nil, &n_dev_ext, nil)
+
+		dev_extension_props := make([]vk.ExtensionProperties, n_dev_ext)
+		defer delete(dev_extension_props)
+
+		vk.EnumerateDeviceExtensionProperties(renderer.physical_device, nil, &n_dev_ext, raw_data(dev_extension_props))
+
+		for &ext in &dev_extension_props {
+			// NOTE: `KHR_PORTABILITY_SUBSET_EXTENSION_NAME` is not defined by
+			//       vendor:vulkan because vulkan_beta.h is not used by the wrapper
+			//       generator at this time, so we use the raw name string instead.
+			if cstring(&ext.extensionName[0]) == "VK_KHR_portability_subset" {
+				append(&device_extensions, "VK_KHR_portability_subset")
+				break
+			}
 		}
 	}
 
@@ -1143,8 +1186,8 @@ init_vulkan :: proc(renderer: ^Renderer) {
 			pNext                   = &REQUIRED_FEATURES,
 			pQueueCreateInfos       = &queue_create_info,
 			queueCreateInfoCount    = 1,
-			ppEnabledExtensionNames = raw_data(DEVICE_EXTENSIONS),
-			enabledExtensionCount   = u32(len(DEVICE_EXTENSIONS)),
+			ppEnabledExtensionNames = raw_data(device_extensions),
+			enabledExtensionCount   = u32(len(device_extensions)),
 		}
 
 		vk_check(
