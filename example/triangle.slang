@@ -15,7 +15,7 @@ static const Vertex VERTICES[3] = {
 };
 
 [shader("vertex")]
-V2P vertex(uint vertex_index: SV_VertexID) {
+V2P vertexmain(uint vertex_index: SV_VertexID) {
     let vertex = VERTICES[vertex_index];
     
     V2P output;
@@ -31,7 +31,7 @@ struct PSOutput {
 };
 
 [shader("fragment")]
-PSOutput fragment(V2P input) {
+PSOutput fragmentmain(V2P input) {
     PSOutput output;
     output.frag_color = float4(input.color, 1.0);
     return output;
