@@ -137,7 +137,7 @@ SourceLanguage :: enum i32 {
 	WGSL,
 }
 
-ProfileID :: enum u32 { 
+ProfileID :: enum u32 {
 	Unknown,
 }
 
@@ -362,7 +362,7 @@ FACILITY_INTERNAL :: FACILITY_BASE + 1
 FACILITY_EXTERNAL_BASE :: 0x210
 
 OK :: 0
-FAIL :: #force_inline proc "contextless"() -> i32 { return MAKE_ERROR(FACILITY_WIN_GENERAL, 0x4005) } 
+FAIL :: #force_inline proc "contextless"() -> i32 { return MAKE_ERROR(FACILITY_WIN_GENERAL, 0x4005) }
 MAKE_WIN_GENERAL_ERROR :: #force_inline proc "contextless"(code: i32) -> i32 { return MAKE_ERROR(FACILITY_WIN_GENERAL, code)}
 
 // Note(dragos): We can hardcode these and put them in an enum. This is not the way.
@@ -570,7 +570,7 @@ FunctionReflection :: struct {
 }
 
 DeclReflection :: struct {
-	
+
 }
 
 IComponentType :: struct #raw_union {
@@ -608,7 +608,7 @@ ITypeConformance :: struct #raw_union {
 	#subtype icomponenttype: IComponentType,
 	using vtable: ^struct {
 		using icomponenttype_vtable: IComponentType_VTable,
-	}
+	},
 }
 
 IModule :: struct #raw_union {
@@ -912,7 +912,7 @@ LayoutRules :: enum u32 {
 }
 
 TypeLayoutReflection :: struct {
-	
+
 }
 
 ContainerType :: enum i32 {
@@ -972,7 +972,7 @@ IGlobalSession :: struct #raw_union {
 		getDefaultDownstreamCompiler      : proc "system"(this: ^IGlobalSession, sourceLanguage: SourceLanguage) -> PassThrough,
 		setLanguagePrelude                : proc "system"(this: ^IGlobalSession, sourceLanguage: SourceLanguage, preludeText: cstring),
 		getLanguagePrelude                : proc "system"(this: ^IGlobalSession, sourceLanguage: SourceLanguage, outPrelude: ^^IBlob),
-		createCompilerRequest             : proc "system"(this: ^IGlobalSession, outCompilerRequest: ^^ICompileRequest) -> Result, /* [deprecated] */ 
+		createCompilerRequest             : proc "system"(this: ^IGlobalSession, outCompilerRequest: ^^ICompileRequest) -> Result, /* [deprecated] */
 		addBuiltins                       : proc "system"(this: ^IGlobalSession, sourcePath: cstring, sourceString: cstring),
 		setSharedLibraryLoader            : proc "system"(this: ^IGlobalSession, loader: ^ISharedLibraryLoader),
 		getSharedLibraryLoader            : proc "system"(this: ^IGlobalSession) -> ^ISharedLibraryLoader,
