@@ -33,6 +33,7 @@ struct PSOutput {
 [shader("fragment")]
 PSOutput fragmentmain(V2P input) {
     PSOutput output;
+    input.color *= 0.1;
     output.frag_color = float4(input.color, 1.0);
     return output;
 }
