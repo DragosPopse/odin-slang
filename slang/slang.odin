@@ -4,11 +4,14 @@ import "core:c"
 
 when ODIN_OS == .Windows {
 	foreign import libslang "lib/slang.lib"
-	//foreign import libslangrt "lib/slang-rt.lib"
 }
 
 when ODIN_OS == .Darwin {
 	foreign import libslang "lib/libslang.dylib"
+}
+
+when ODIN_OS == .Linux {
+	foreign import libslang "lib/libslang.so"
 }
 
 // Note(Dragos): This is defined to be "pointer size". So ummmm check later
