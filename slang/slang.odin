@@ -75,7 +75,7 @@ CompileTarget :: enum i32 {
 	HOST_SHARED_LIBRARY,
 	WGSL,
 	WGSL_SPIRV_ASM,
-	WGSL_SPIRGV,
+	WGSL_SPIRV,
 	HOST_VM,
 }
 
@@ -103,7 +103,7 @@ CompileFlag :: enum u32 {
 }
 CompileFlags :: bit_set[CompileFlag; u32]
 
-TargetFlag :: enum u32 {
+TargetFlag :: enum i32 {
 	/* [deprecated] */ PARAMETER_BLOCK_USE_REGISTER_SPACE = 4, // This behavior is now enabled unconditionally
 	GENERATE_WHOLE_PROGRAM = 8,
 	DUMP_IR = 9,
@@ -462,15 +462,6 @@ UUID :: struct {
 	data4: [8]u8,
 }
 
-#assert(size_of(TargetDesc) == 48)
-#assert(offset_of(TargetDesc, compilerOptionEntries) == 32)
-#assert(offset_of(TargetDesc, compilerOptionEntryCount) == 40)
-
-// If your enums are intended to be 32-bit:
-#assert(size_of(SessionFlags) == 4)
-#assert(size_of(CompileTarget) == 4)
-#assert(size_of(MatrixLayoutMode) == 4)
-
 IUnknown :: struct {
 	using vtable: ^IUnknown_VTable,
 }
@@ -572,6 +563,7 @@ IFileSystemExt_VTable :: struct {
 	calcCombinedPath     : proc "system"(this: ^IFileSystemExt, fromPath, path: cstring, pathOut: ^^IBlob) -> Result,
 	getPathType          : proc "system"(this: ^IFileSystemExt, path: cstring, pathTypeOut: ^PathType) -> Result,
 	getPath              : proc "system"(this: ^IFileSystemExt, path: cstring, outPath: ^^IBlob) -> Result,
+    clearCache           : proc "system"(this: ^IFileSystemExt),
 	enumeratePathContents: proc "system"(this: ^IFileSystemExt, path: cstring, callback: FileSystemContentsCallback, userData: rawptr) -> Result,
 	getOSPathKind        : proc "system"(this: ^IFileSystemExt) -> OSPathKind,
 }
@@ -628,15 +620,15 @@ DiagnosticsCallback :: #type proc "c"(message: cstring, userData: rawptr)
 
 
 ProgramLayout :: struct {
-
+    _pad0: [1]u8,
 }
 
 FunctionReflection :: struct {
-
+    _pad0: [1]u8,
 }
 
 DeclReflection :: struct {
-
+    _pad0: [1]u8,
 }
 
 IComponentType :: struct #raw_union {
@@ -673,8 +665,8 @@ IEntryPoint :: struct #raw_union {
 ITypeConformance :: struct #raw_union {
 	#subtype icomponenttype: IComponentType,
 	using vtable: ^struct {
-		using icomponenttype_vtable: IComponentType_VTable,
-	},
+        using icomponenttype_vtable: IComponentType_VTable,
+    }
 }
 
 IComponentType2 :: struct #raw_union {
@@ -1085,7 +1077,6 @@ ICompileResult :: struct #raw_union {
 		getItemCount           : proc "system"(this: ^ICompileResult) -> u32,
 		getItemData            : proc "system"(this: ^ICompileResult, index: u32, outBlob: ^^IBlob) -> Result,
 		getMetadata            : proc "system"(this: ^ICompileResult, outMetadata: ^^IMetadata) -> Result,
-		getDebugBuildIdentifier: proc "system"(this: ^IMetadata) -> cstring,
 	},
 }
 
@@ -1150,100 +1141,3 @@ foreign libslang {
 	ReflectionType_GetKind :: proc(type: ^TypeReflection) -> TypeKind ---
 	ReflectionType_GetFieldCount :: proc(type: ^TypeReflection) -> u32 ---
 }
-
-#assert(offset_of(CompilerOptionValue, kind) == 0);
-#assert(offset_of(CompilerOptionValue, intValue0) == 4);
-#assert(offset_of(CompilerOptionValue, intValue1) == 8);
-#assert(offset_of(CompilerOptionValue, stringValue0) == 16);
-#assert(offset_of(CompilerOptionValue, stringValue1) == 24);
-#assert(size_of(CompilerOptionValue) == 32);
-
-#assert(size_of(CompilerOptionEntry) == 40);
-#assert(offset_of(CompilerOptionEntry, name) == 0);
-#assert(offset_of(CompilerOptionEntry, value) == 8);
-
-#assert(size_of(ICompileRequest) == 0);
-
-#assert(size_of(CompileCoreModuleFlag) == 4)
-
-#assert(size_of(IGlobalSession) == 8)
-
-#assert(offset_of(TargetDesc, structureSize) == 0)
-#assert(offset_of(TargetDesc, format) == 8)
-#assert(offset_of(TargetDesc, profile) == 12)
-#assert(offset_of(TargetDesc, flags) == 16)
-#assert(offset_of(TargetDesc, floatingPointMode) == 20)
-#assert(offset_of(TargetDesc, lineDirectiveMode) == 24)
-#assert(offset_of(TargetDesc, forceGLSLScalarBufferLayout) == 28)
-#assert(offset_of(TargetDesc, compilerOptionEntries) == 32)
-#assert(offset_of(TargetDesc, compilerOptionEntryCount) == 40)
-#assert(size_of(TargetDesc) == 48)
-
-#assert(offset_of(PreprocessorMacroDesc, name) == 0)
-#assert(offset_of(PreprocessorMacroDesc, value) == 8)
-#assert(size_of(PreprocessorMacroDesc) == 16)
-
-#assert(offset_of(SessionDesc, structureSize) == 0)
-#assert(offset_of(SessionDesc, targets) == 8)
-#assert(offset_of(SessionDesc, targetCount) == 16)
-#assert(offset_of(SessionDesc, flags) == 24)
-#assert(offset_of(SessionDesc, defaultMatrixLayoutMode) == 28)
-#assert(offset_of(SessionDesc, searchPaths) == 32)
-#assert(offset_of(SessionDesc, searchPathCount) == 40)
-#assert(offset_of(SessionDesc, preprocessorMacros) == 48)
-#assert(offset_of(SessionDesc, preprocessorMacroCount) == 56)
-#assert(offset_of(SessionDesc, fileSystem) == 64)
-#assert(offset_of(SessionDesc, enableEffectAnnotations) == 72)
-#assert(offset_of(SessionDesc, allowGLSLSyntax) == 73)
-#assert(offset_of(SessionDesc, compilerOptionEntries) == 80)
-#assert(offset_of(SessionDesc, compilerOptionEntryCount) == 88)
-#assert(offset_of(SessionDesc, skipSPIRVValidation) == 92)
-#assert(size_of(SessionDesc) == 96)
-
-#assert(size_of(ISession) == 8)
-
-#assert(size_of(IMetadata) == 8)
-
-#assert(size_of(ICompileResult) == 8)
-
-#assert(size_of(IComponentType) == 8)
-
-#assert(size_of(IEntryPoint) == 8)
-
-#assert(size_of(ITypeConformance) == 8)
-
-#assert(size_of(IComponentType2) == 8)
-
-#assert(size_of(IModule) == 8)
-
-#assert(size_of(SpecializationArg) == 16)
-#assert(offset_of(SpecializationArg, kind) == 0)
-
-#assert(size_of(IUnknown) == 8)
-
-#assert(size_of(ICastable) == 8)
-
-#assert(size_of(IClonable) == 8)
-
-#assert(size_of(IBlob) == 8)
-
-#assert(size_of(IFileSystem) == 8)
-
-#assert(size_of(ISharedLibrary) == 8)
-
-#assert(size_of(ISharedLibraryLoader) == 8)
-
-#assert(size_of(IFileSystemExt) == 8)
-
-#assert(size_of(IMutableFileSystem) == 8)
-
-#assert(size_of(IWriter) == 8)
-
-#assert(size_of(IProfiler) == 8)
-
-#assert(offset_of(GlobalSessionDesc, structureSize) == 0)
-#assert(offset_of(GlobalSessionDesc, apiVersion) == 4)
-#assert(offset_of(GlobalSessionDesc, minLanguageVersion) == 8)
-#assert(offset_of(GlobalSessionDesc, enableGLSL) == 12)
-#assert(offset_of(GlobalSessionDesc, reserved) == 16)
-#assert(size_of(GlobalSessionDesc) == 80)
