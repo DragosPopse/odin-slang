@@ -213,146 +213,178 @@ EmitSpirvMethod :: enum i32 {
 }
 
 CompilerOptionName :: enum i32 {
-	MacroDefine, // stringValue0: macro name;  stringValue1: macro value
-	DepFile,
-	EntryPointName,
-	Specialize,
-	Help,
-	HelpStyle,
-	Include, // stringValue: additional include path.
-	Language,
-	MatrixLayoutColumn,         // bool
-	MatrixLayoutRow,            // bool
-	ZeroInitialize,             // bool
-	IgnoreCapabilities,         // bool
-	RestrictiveCapabilityCheck, // bool
-	ModuleName,                 // stringValue0: module name.
-	Output,
-	Profile, // intValue0: profile
-	Stage,   // intValue0: stage
-	Target,  // intValue0: CodeGenTarget
-	Version,
-	WarningsAsErrors, // stringValue0: "all" or comma separated list of warning codes or names.
-	DisableWarnings,  // stringValue0: comma separated list of warning codes or names.
-	EnableWarning,    // stringValue0: warning code or name.
-	DisableWarning,   // stringValue0: warning code or name.
-	DumpWarningDiagnostics,
-	InputFilesRemain,
-	EmitIr,                        // bool
-	ReportDownstreamTime,          // bool
-	ReportPerfBenchmark,           // bool
-	ReportCheckpointIntermediates, // bool
-	SkipSPIRVValidation,           // bool
-	SourceEmbedStyle,
-	SourceEmbedName,
-	SourceEmbedLanguage,
-	DisableShortCircuit,            // bool
-	MinimumSlangOptimization,       // bool
-	DisableNonEssentialValidations, // bool
-	DisableSourceMap,               // bool
-	UnscopedEnum,                   // bool
-	PreserveParameters, // bool: preserve all resource parameters in the output code.
-	// Target
-	Capability,                // intValue0: CapabilityName
-	DefaultImageFormatUnknown, // bool
-	DisableDynamicDispatch,    // bool
-	DisableSpecialization,     // bool
-	FloatingPointMode,         // intValue0: FloatingPointMode
-	DebugInformation,          // intValue0: DebugInfoLevel
-	LineDirectiveMode,
-	Optimization, // intValue0: OptimizationLevel
-	Obfuscate,    // bool
-	VulkanBindShift, // intValue0 (higher 8 bits): kind; intValue0(lower bits): set; intValue1:
-					 // shift
-	VulkanBindGlobals,       // intValue0: index; intValue1: set
-	VulkanInvertY,           // bool
-	VulkanUseDxPositionW,    // bool
-	VulkanUseEntryPointName, // bool
-	VulkanUseGLLayout,       // bool
-	VulkanEmitReflection,    // bool
-	GLSLForceScalarLayout,   // bool
-	EnableEffectAnnotations, // bool
-	EmitSpirvViaGLSL,     // bool (will be deprecated)
-	EmitSpirvDirectly,    // bool (will be deprecated)
-	SPIRVCoreGrammarJSON, // stringValue0: json path
-	IncompleteLibrary,    // bool, when set, will not issue an error when the linked program has
-						  // unresolved extern function symbols.
-	// Downstream
-	CompilerPath,
-	DefaultDownstreamCompiler,
-	DownstreamArgs, // stringValue0: downstream compiler name. stringValue1: argument list, one
-					// per line.
-	PassThrough,
-	// Repro
-	DumpRepro,
-	DumpReproOnError,
-	ExtractRepro,
-	LoadRepro,
-	LoadReproDirectory,
-	ReproFallbackDirectory,
-	// Debugging
-	DumpAst,
-	DumpIntermediatePrefix,
-	DumpIntermediates, // bool
-	DumpIr,            // bool
-	DumpIrIds,
-	PreprocessorOutput,
-	OutputIncludes,
-	ReproFileSystem,
-	REMOVED_SerialIR, // deprecated and removed
-	SkipCodeGen,      // bool
-	ValidateIr,       // bool
-	VerbosePaths,
-	VerifyDebugSerialIr,
-	NoCodeGen, // Not used.
-	// Experimental
-	FileSystem,
-	Heterogeneous,
-	NoMangle,
-	NoHLSLBinding,
-	NoHLSLPackConstantBufferElements,
-	ValidateUniformity,
-	AllowGLSL,
-	EnableExperimentalPasses,
-	BindlessSpaceIndex,
-	// Internal
-	ArchiveType,
-	CompileCoreModule,
-	Doc,
-	IrCompression,
-	LoadCoreModule,
-	ReferenceModule,
-	SaveCoreModule,
-	SaveCoreModuleBinSource,
-	TrackLiveness,
-	LoopInversion, // bool, enable loop inversion optimization
-	// Deprecated
-	ParameterBlocksUseRegisterSpaces,
-	CountOfParsableOptions,
-	// Used in parsed options only.
-	DebugInformationFormat,  // intValue0: DebugInfoFormat
-	VulkanBindShiftAll,      // intValue0: kind; intValue1: shift
-	GenerateWholeProgram,    // bool
-	UseUpToDateBinaryModule, // bool, when set, will only load
-							 // precompiled modules if it is up-to-date with its source.
-	EmbedDownstreamIR,       // bool
-	ForceDXLayout,           // bool
-	// Add this new option to the end of the list to avoid breaking ABI as much as possible.
-	// Setting of EmitSpirvDirectly or EmitSpirvViaGLSL will turn into this option internally.
-	EmitSpirvMethod, // enum SlangEmitSpirvMethod
-	SaveGLSLModuleBinSource,
-	SkipDownstreamLinking, // bool, experimental
-	DumpModule,
-	GetModuleInfo,              // Print serialized module version and name
-	GetSupportedModuleVersions, // Print the min and max module versions this compiler supports
-	EmitSeparateDebug,          // bool
-	// Floating point denormal handling modes
-	DenormalModeFp16,
-	DenormalModeFp32,
-	DenormalModeFp64,
-	// Bitfield options
-	UseMSVCStyleBitfieldPacking, // bool
-	ForceCLayout, // bool
+    MacroDefine, // stringValue0: macro name;  stringValue1: macro value
+    DepFile,
+    EntryPointName,
+    Specialize,
+    Help,
+    HelpStyle,
+    Include, // stringValue: additional include path.
+    Language,
+    MatrixLayoutColumn,         // bool
+    MatrixLayoutRow,            // bool
+    ZeroInitialize,             // bool
+    IgnoreCapabilities,         // bool
+    RestrictiveCapabilityCheck, // bool
+    ModuleName,                 // stringValue0: module name.
+    Output,
+    Profile, // intValue0: profile
+    Stage,   // intValue0: stage
+    Target,  // intValue0: CodeGenTarget
+    Version,
+    WarningsAsErrors, // stringValue0: "all" or comma separated list of warning codes or names.
+    DisableWarnings,  // stringValue0: comma separated list of warning codes or names.
+    EnableWarning,    // stringValue0: warning code or name.
+    DisableWarning,   // stringValue0: warning code or name.
+    DumpWarningDiagnostics,
+    InputFilesRemain,
+    EmitIr,                        // bool
+    ReportDownstreamTime,          // bool
+    ReportPerfBenchmark,           // bool
+    ReportCheckpointIntermediates, // bool
+    SkipSPIRVValidation,           // bool
+    SourceEmbedStyle,
+    SourceEmbedName,
+    SourceEmbedLanguage,
+    DisableShortCircuit,            // bool
+    MinimumSlangOptimization,       // bool
+    DisableNonEssentialValidations, // bool
+    DisableSourceMap,               // bool
+    UnscopedEnum,                   // bool
+    PreserveParameters, // bool: preserve all resource parameters in the output code.
+    // Target
+
+    Capability,                // intValue0: CapabilityName
+    DefaultImageFormatUnknown, // bool
+    DisableDynamicDispatch,    // bool
+    DisableSpecialization,     // bool
+    FloatingPointMode,         // intValue0: FloatingPointMode
+    DebugInformation,          // intValue0: DebugInfoLevel
+    LineDirectiveMode,
+    Optimization, // intValue0: OptimizationLevel
+    Obfuscate,    // bool
+
+    VulkanBindShift, // intValue0 (higher 8 bits): kind; intValue0(lower bits): set; intValue1:
+                     // shift
+    VulkanBindGlobals,       // intValue0: index; intValue1: set
+    VulkanInvertY,           // bool
+    VulkanUseDxPositionW,    // bool
+    VulkanUseEntryPointName, // bool
+    VulkanUseGLLayout,       // bool
+    VulkanEmitReflection,    // bool
+
+    GLSLForceScalarLayout,   // bool
+    EnableEffectAnnotations, // bool
+
+    EmitSpirvViaGLSL,     // bool (will be deprecated)
+    EmitSpirvDirectly,    // bool (will be deprecated)
+    SPIRVCoreGrammarJSON, // stringValue0: json path
+    IncompleteLibrary,    // bool, when set, will not issue an error when the linked program has
+                          // unresolved extern function symbols.
+
+    // Downstream
+
+    CompilerPath,
+    DefaultDownstreamCompiler,
+    DownstreamArgs, // stringValue0: downstream compiler name. stringValue1: argument list, one
+                    // per line.
+    PassThrough,
+
+    // Repro
+
+    DumpRepro,
+    DumpReproOnError,
+    ExtractRepro,
+    LoadRepro,
+    LoadReproDirectory,
+    ReproFallbackDirectory,
+
+    // Debugging
+
+    DumpAst,
+    DumpIntermediatePrefix,
+    DumpIntermediates, // bool
+    DumpIr,            // bool
+    DumpIrIds,
+    PreprocessorOutput,
+    OutputIncludes,
+    ReproFileSystem,
+    REMOVED_SerialIR, // deprecated and removed
+    SkipCodeGen,      // bool
+    ValidateIr,       // bool
+    VerbosePaths,
+    VerifyDebugSerialIr,
+    NoCodeGen, // Not used.
+
+    // Experimental
+
+    FileSystem,
+    Heterogeneous,
+    NoMangle,
+    NoHLSLBinding,
+    NoHLSLPackConstantBufferElements,
+    ValidateUniformity,
+    AllowGLSL,
+    EnableExperimentalPasses,
+    BindlessSpaceIndex, // int
+
+    // Internal
+
+    ArchiveType,
+    CompileCoreModule,
+    Doc,
+
+    IrCompression, //< deprecated
+
+    LoadCoreModule,
+    ReferenceModule,
+    SaveCoreModule,
+    SaveCoreModuleBinSource,
+    TrackLiveness,
+    LoopInversion, // bool, enable loop inversion optimization
+
+    ParameterBlocksUseRegisterSpaces, // Deprecated
+    LanguageVersion,                  // intValue0: SlangLanguageVersion
+    TypeConformance, // stringValue0: additional type conformance to link, in the format of
+                     // "<TypeName>:<IInterfaceName>[=<sequentialId>]", for example
+                     // "Impl:IFoo=3" or "Impl:IFoo".
+    EnableExperimentalDynamicDispatch, // bool, experimental
+    EmitReflectionJSON,                // bool
+
+    CountOfParsableOptions,
+
+    // Used in parsed options only.
+    DebugInformationFormat,  // intValue0: DebugInfoFormat
+    VulkanBindShiftAll,      // intValue0: kind; intValue1: shift
+    GenerateWholeProgram,    // bool
+    UseUpToDateBinaryModule, // bool, when set, will only load
+                             // precompiled modules if it is up-to-date with its source.
+    EmbedDownstreamIR,       // bool
+    ForceDXLayout,           // bool
+
+    // Add this new option to the end of the list to avoid breaking ABI as much as possible.
+    // Setting of EmitSpirvDirectly or EmitSpirvViaGLSL will turn into this option internally.
+    EmitSpirvMethod, // enum SlangEmitSpirvMethod
+
+    SaveGLSLModuleBinSource,
+
+    SkipDownstreamLinking, // bool, experimental
+    DumpModule,
+
+    GetModuleInfo,              // Print serialized module version and name
+    GetSupportedModuleVersions, // Print the min and max module versions this compiler supports
+
+    EmitSeparateDebug, // bool
+
+    // Floating point denormal handling modes
+    DenormalModeFp16,
+    DenormalModeFp32,
+    DenormalModeFp64,
+
+    // Bitfield options
+    UseMSVCStyleBitfieldPacking, // bool
+
+    ForceCLayout, // bool
 }
 
 CompilerOptionValueKind :: enum i32 {
@@ -430,6 +462,15 @@ UUID :: struct {
 	data4: [8]u8,
 }
 
+#assert(size_of(TargetDesc) == 48)
+#assert(offset_of(TargetDesc, compilerOptionEntries) == 32)
+#assert(offset_of(TargetDesc, compilerOptionEntryCount) == 40)
+
+// If your enums are intended to be 32-bit:
+#assert(size_of(SessionFlags) == 4)
+#assert(size_of(CompileTarget) == 4)
+#assert(size_of(MatrixLayoutMode) == 4)
+
 IUnknown :: struct {
 	using vtable: ^IUnknown_VTable,
 }
@@ -476,7 +517,7 @@ IFileSystem :: struct #raw_union {
 
 IFileSystem_VTable :: struct {
 	using icastable_vtable: ICastable_VTable,
-	loadFile: proc "system"(this: ^IFileSystem, path: cstring) -> Result,
+	loadFile: proc "system"(this: ^IFileSystem, path: cstring, outBlob: ^^IBlob) -> Result,
 }
 
 // Todo(Dragos): Should this be a rawptr?
@@ -487,7 +528,7 @@ ISharedLibrary :: struct #raw_union {
 	#subtype icastable: ICastable,
 	using vtable: ^struct {
 		using icastable_vtable: ICastable_VTable,
-		findSymbolByName: proc "system" (this: ^IFileSystem, name: cstring) -> rawptr,
+		findSymbolByName: proc "system" (this: ^ISharedLibrary, name: cstring) -> rawptr,
 	},
 }
 
@@ -599,7 +640,7 @@ DeclReflection :: struct {
 }
 
 IComponentType :: struct #raw_union {
-	#subtype iunknown: ^IUnknown,
+	#subtype iunknown: IUnknown,
 	using vtable: ^IComponentType_VTable,
 }
 
@@ -610,7 +651,7 @@ IComponentType_VTable :: struct {
 	getSpecializationParamCount: proc "system"(this: ^IComponentType) -> Int,
 	getEntryPointCode          : proc "system"(this: ^IComponentType, entryPointIndex: Int, targetIndex: Int, outCode: ^^IBlob, outDiagnostics: ^^IBlob) -> Result,
 	getResultAsFileSystem      : proc "system"(this: ^IComponentType, entryPointIndex: Int, targetIndex: Int, outFileSystem: ^^IMutableFileSystem) -> Result,
-	getEntryPointHash          : proc "system"(this: ^IComponentType, entryPointIndex, targetIndex: Int, outHash: ^^IBlob),
+	getEntryPointHash          : proc "system"(this: ^IComponentType, entryPointIndex, targetIndex: Int, outHash: ^^IBlob) -> Result,
 	specialize                 : proc "system"(this: ^IComponentType, specializationArgs: [^]SpecializationArg, specializationArgCount: Int, outSpecializedComponentType: ^^IComponentType, outDiagnostics: ^^IBlob) -> Result,
 	link                       : proc "system"(this: ^IComponentType, outLinkedComponentType: ^^IComponentType, outDiagnostics: ^^IBlob) -> Result,
 	getEntryPointHostCallable  : proc "system"(this: ^IComponentType, entryPointIndex, targetIndex: i32, outSharedLibrary: ^^ISharedLibrary, outDiagnostics: ^^IBlob) -> Result,
@@ -656,12 +697,12 @@ IModule :: struct #raw_union {
 		writeToFile              : proc "system"(this: ^IModule, fileName: cstring) -> Result,
 		getName                  : proc "system"(this: ^IModule) -> cstring,
 		getFilePath              : proc "system"(this: ^IModule) -> cstring,
-		getUNiqueIdentity        : proc "system"(this: ^IModule) -> cstring,
+		getUniqueIdentity        : proc "system"(this: ^IModule) -> cstring,
 		findAndCheckEntryPoint   : proc "system"(this: ^IModule, name: cstring, stage: Stage, outEntryPoint: ^^IEntryPoint, outDiagnostics: ^^IBlob) -> Result,
 		getDependencyFileCount   : proc "system"(this: ^IModule) -> i32,
 		getDependencyFilePath    : proc "system"(this: ^IModule, index: i32) -> cstring,
 		getModuleReflection      : proc "system"(this: ^IModule) -> ^DeclReflection,
-		disassemble              : proc "system"(this: ^IModule, outDisassembledBlob: ^^IBlob) -> ^Result,
+		disassemble              : proc "system"(this: ^IModule, outDisassembledBlob: ^^IBlob) -> Result,
 	},
 }
 
@@ -704,6 +745,7 @@ GlobalSessionDesc :: struct {
 	/// Reserved for future use.
 	reserved: [16]u32,
 }
+#assert(size_of(GlobalSessionDesc) == 80)
 
 kGlobalSessionDescDefaultValues :: GlobalSessionDesc {
 	structureSize      = size_of(GlobalSessionDesc),
@@ -1058,7 +1100,7 @@ IGlobalSession :: struct #raw_union {
 		using iunknown_vtable: IUnknown_VTable,
 		createSession                     : proc "system"(this: ^IGlobalSession, #by_ptr desc: SessionDesc, outSession: ^^ISession) -> Result,
 		findProfile                       : proc "system"(this: ^IGlobalSession, name: cstring) -> ProfileID,
-		setDownstreamCompierPath          : proc "system"(this: ^IGlobalSession, passThrough: PassThrough, path: cstring),
+		setDownstreamCompilerPath         : proc "system"(this: ^IGlobalSession, passThrough: PassThrough, path: cstring),
 		setDownstreamCompilerPrelude      : proc "system"(this: ^IGlobalSession, passThrough: PassThrough, preduleText: cstring),
 		getDownstreamCompilerPrelude      : proc "system"(this: ^IGlobalSession, passThrough: PassThrough, outPrelude: ^^IBlob),
 		getBuildTagString                 : proc "system"(this: ^IGlobalSession) -> cstring,
@@ -1108,3 +1150,100 @@ foreign libslang {
 	ReflectionType_GetKind :: proc(type: ^TypeReflection) -> TypeKind ---
 	ReflectionType_GetFieldCount :: proc(type: ^TypeReflection) -> u32 ---
 }
+
+#assert(offset_of(CompilerOptionValue, kind) == 0);
+#assert(offset_of(CompilerOptionValue, intValue0) == 4);
+#assert(offset_of(CompilerOptionValue, intValue1) == 8);
+#assert(offset_of(CompilerOptionValue, stringValue0) == 16);
+#assert(offset_of(CompilerOptionValue, stringValue1) == 24);
+#assert(size_of(CompilerOptionValue) == 32);
+
+#assert(size_of(CompilerOptionEntry) == 40);
+#assert(offset_of(CompilerOptionEntry, name) == 0);
+#assert(offset_of(CompilerOptionEntry, value) == 8);
+
+#assert(size_of(ICompileRequest) == 0);
+
+#assert(size_of(CompileCoreModuleFlag) == 4)
+
+#assert(size_of(IGlobalSession) == 8)
+
+#assert(offset_of(TargetDesc, structureSize) == 0)
+#assert(offset_of(TargetDesc, format) == 8)
+#assert(offset_of(TargetDesc, profile) == 12)
+#assert(offset_of(TargetDesc, flags) == 16)
+#assert(offset_of(TargetDesc, floatingPointMode) == 20)
+#assert(offset_of(TargetDesc, lineDirectiveMode) == 24)
+#assert(offset_of(TargetDesc, forceGLSLScalarBufferLayout) == 28)
+#assert(offset_of(TargetDesc, compilerOptionEntries) == 32)
+#assert(offset_of(TargetDesc, compilerOptionEntryCount) == 40)
+#assert(size_of(TargetDesc) == 48)
+
+#assert(offset_of(PreprocessorMacroDesc, name) == 0)
+#assert(offset_of(PreprocessorMacroDesc, value) == 8)
+#assert(size_of(PreprocessorMacroDesc) == 16)
+
+#assert(offset_of(SessionDesc, structureSize) == 0)
+#assert(offset_of(SessionDesc, targets) == 8)
+#assert(offset_of(SessionDesc, targetCount) == 16)
+#assert(offset_of(SessionDesc, flags) == 24)
+#assert(offset_of(SessionDesc, defaultMatrixLayoutMode) == 28)
+#assert(offset_of(SessionDesc, searchPaths) == 32)
+#assert(offset_of(SessionDesc, searchPathCount) == 40)
+#assert(offset_of(SessionDesc, preprocessorMacros) == 48)
+#assert(offset_of(SessionDesc, preprocessorMacroCount) == 56)
+#assert(offset_of(SessionDesc, fileSystem) == 64)
+#assert(offset_of(SessionDesc, enableEffectAnnotations) == 72)
+#assert(offset_of(SessionDesc, allowGLSLSyntax) == 73)
+#assert(offset_of(SessionDesc, compilerOptionEntries) == 80)
+#assert(offset_of(SessionDesc, compilerOptionEntryCount) == 88)
+#assert(offset_of(SessionDesc, skipSPIRVValidation) == 92)
+#assert(size_of(SessionDesc) == 96)
+
+#assert(size_of(ISession) == 8)
+
+#assert(size_of(IMetadata) == 8)
+
+#assert(size_of(ICompileResult) == 8)
+
+#assert(size_of(IComponentType) == 8)
+
+#assert(size_of(IEntryPoint) == 8)
+
+#assert(size_of(ITypeConformance) == 8)
+
+#assert(size_of(IComponentType2) == 8)
+
+#assert(size_of(IModule) == 8)
+
+#assert(size_of(SpecializationArg) == 16)
+#assert(offset_of(SpecializationArg, kind) == 0)
+
+#assert(size_of(IUnknown) == 8)
+
+#assert(size_of(ICastable) == 8)
+
+#assert(size_of(IClonable) == 8)
+
+#assert(size_of(IBlob) == 8)
+
+#assert(size_of(IFileSystem) == 8)
+
+#assert(size_of(ISharedLibrary) == 8)
+
+#assert(size_of(ISharedLibraryLoader) == 8)
+
+#assert(size_of(IFileSystemExt) == 8)
+
+#assert(size_of(IMutableFileSystem) == 8)
+
+#assert(size_of(IWriter) == 8)
+
+#assert(size_of(IProfiler) == 8)
+
+#assert(offset_of(GlobalSessionDesc, structureSize) == 0)
+#assert(offset_of(GlobalSessionDesc, apiVersion) == 4)
+#assert(offset_of(GlobalSessionDesc, minLanguageVersion) == 8)
+#assert(offset_of(GlobalSessionDesc, enableGLSL) == 12)
+#assert(offset_of(GlobalSessionDesc, reserved) == 16)
+#assert(size_of(GlobalSessionDesc) == 80)
