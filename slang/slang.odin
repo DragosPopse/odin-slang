@@ -40,6 +40,7 @@ PassThrough :: enum i32 {
 	SPIRV_OPT,
 	METAL,
 	TINT,
+	SPIRV_LINK,
 }
 
 
@@ -74,7 +75,8 @@ CompileTarget :: enum i32 {
 	HOST_SHARED_LIBRARY,
 	WGSL,
 	WGSL_SPIRV_ASM,
-	WGSL_SPIRGV,
+	WGSL_SPIRV,
+	HOST_VM,
 }
 
 ContainerFormat :: enum i32 {
@@ -101,7 +103,7 @@ CompileFlag :: enum u32 {
 }
 CompileFlags :: bit_set[CompileFlag; u32]
 
-TargetFlag :: enum u32 {
+TargetFlag :: enum i32 {
 	/* [deprecated] */ PARAMETER_BLOCK_USE_REGISTER_SPACE = 4, // This behavior is now enabled unconditionally
 	GENERATE_WHOLE_PROGRAM = 8,
 	DUMP_IR = 9,
@@ -117,6 +119,12 @@ FloatingPointMode :: enum u32 {
 	DEFAULT,
 	FAST,
 	PRECISE,
+}
+
+FpDenormalMode :: enum u32 {
+	ANY,
+	PRESERVE,
+	FTZ,
 }
 
 LineDirectiveMode :: enum u32 {
@@ -170,6 +178,7 @@ Stage :: enum u32 {
 	CALLABLE,
 	MESH,
 	AMPLIFICATION,
+	DISPATCH,
 	PIXEL = FRAGMENT, // alias
 }
 
@@ -204,132 +213,178 @@ EmitSpirvMethod :: enum i32 {
 }
 
 CompilerOptionName :: enum i32 {
-	MacroDefine, // stringValue0: macro name;  stringValue1: macro value
-	DepFile,
-	EntryPointName,
-	Specialize,
-	Help,
-	HelpStyle,
-	Include, // stringValue: additional include path.
-	Language,
-	MatrixLayoutColumn,         // bool
-	MatrixLayoutRow,            // bool
-	ZeroInitialize,             // bool
-	IgnoreCapabilities,         // bool
-	RestrictiveCapabilityCheck, // bool
-	ModuleName,                 // stringValue0: module name.
-	Output,
-	Profile, // intValue0: profile
-	Stage,   // intValue0: stage
-	Target,  // intValue0: CodeGenTarget
-	Version,
-	WarningsAsErrors, // stringValue0: "all" or comma separated list of warning codes or names.
-	DisableWarnings,  // stringValue0: comma separated list of warning codes or names.
-	EnableWarning,    // stringValue0: warning code or name.
-	DisableWarning,   // stringValue0: warning code or name.
-	DumpWarningDiagnostics,
-	InputFilesRemain,
-	EmitIr,                        // bool
-	ReportDownstreamTime,          // bool
-	ReportPerfBenchmark,           // bool
-	ReportCheckpointIntermediates, // bool
-	SkipSPIRVValidation,           // bool
-	SourceEmbedStyle,
-	SourceEmbedName,
-	SourceEmbedLanguage,
-	DisableShortCircuit,            // bool
-	MinimumSlangOptimization,       // bool
-	DisableNonEssentialValidations, // bool
-	DisableSourceMap,               // bool
-	UnscopedEnum,                   // bool
-	PreserveParameters, // bool: preserve all resource parameters in the output code.
-	// Target
-	Capability,                // intValue0: CapabilityName
-	DefaultImageFormatUnknown, // bool
-	DisableDynamicDispatch,    // bool
-	DisableSpecialization,     // bool
-	FloatingPointMode,         // intValue0: FloatingPointMode
-	DebugInformation,          // intValue0: DebugInfoLevel
-	LineDirectiveMode,
-	Optimization, // intValue0: OptimizationLevel
-	Obfuscate,    // bool
-	VulkanBindShift, // intValue0 (higher 8 bits): kind; intValue0(lower bits): set; intValue1:
-					 // shift
-	VulkanBindGlobals,       // intValue0: index; intValue1: set
-	VulkanInvertY,           // bool
-	VulkanUseDxPositionW,    // bool
-	VulkanUseEntryPointName, // bool
-	VulkanUseGLLayout,       // bool
-	VulkanEmitReflection,    // bool
-	GLSLForceScalarLayout,   // bool
-	EnableEffectAnnotations, // bool
-	EmitSpirvViaGLSL,     // bool (will be deprecated)
-	EmitSpirvDirectly,    // bool (will be deprecated)
-	SPIRVCoreGrammarJSON, // stringValue0: json path
-	IncompleteLibrary,    // bool, when set, will not issue an error when the linked program has
-						  // unresolved extern function symbols.
-	// Downstream
-	CompilerPath,
-	DefaultDownstreamCompiler,
-	DownstreamArgs, // stringValue0: downstream compiler name. stringValue1: argument list, one
-					// per line.
-	PassThrough,
-	// Repro
-	DumpRepro,
-	DumpReproOnError,
-	ExtractRepro,
-	LoadRepro,
-	LoadReproDirectory,
-	ReproFallbackDirectory,
-	// Debugging
-	DumpAst,
-	DumpIntermediatePrefix,
-	DumpIntermediates, // bool
-	DumpIr,            // bool
-	DumpIrIds,
-	PreprocessorOutput,
-	OutputIncludes,
-	ReproFileSystem,
-	SerialIr,    // bool
-	SkipCodeGen, // bool
-	ValidateIr,  // bool
-	VerbosePaths,
-	VerifyDebugSerialIr,
-	NoCodeGen, // Not used.
-	// Experimental
-	FileSystem,
-	Heterogeneous,
-	NoMangle,
-	NoHLSLBinding,
-	NoHLSLPackConstantBufferElements,
-	ValidateUniformity,
-	AllowGLSL,
-	EnableExperimentalPasses,
-	// Internal
-	ArchiveType,
-	CompileCoreModule,
-	Doc,
-	IrCompression,
-	LoadCoreModule,
-	ReferenceModule,
-	SaveCoreModule,
-	SaveCoreModuleBinSource,
-	TrackLiveness,
-	LoopInversion, // bool, enable loop inversion optimization
-	// Deprecated
-	ParameterBlocksUseRegisterSpaces,
-	CountOfParsableOptions,
-	// Used in parsed options only.
-	DebugInformationFormat,  // intValue0: DebugInfoFormat
-	VulkanBindShiftAll,      // intValue0: kind; intValue1: shift
-	GenerateWholeProgram,    // bool
-	UseUpToDateBinaryModule, // bool, when set, will only load
-							 // precompiled modules if it is up-to-date with its source.
-	EmbedDownstreamIR,       // bool
-	ForceDXLayout,           // bool
-	// Add this new option to the end of the list to avoid breaking ABI as much as possible.
-	// Setting of EmitSpirvDirectly or EmitSpirvViaGLSL will turn into this option internally.
-	EmitSpirvMethod, // enum SlangEmitSpirvMethod
+    MacroDefine, // stringValue0: macro name;  stringValue1: macro value
+    DepFile,
+    EntryPointName,
+    Specialize,
+    Help,
+    HelpStyle,
+    Include, // stringValue: additional include path.
+    Language,
+    MatrixLayoutColumn,         // bool
+    MatrixLayoutRow,            // bool
+    ZeroInitialize,             // bool
+    IgnoreCapabilities,         // bool
+    RestrictiveCapabilityCheck, // bool
+    ModuleName,                 // stringValue0: module name.
+    Output,
+    Profile, // intValue0: profile
+    Stage,   // intValue0: stage
+    Target,  // intValue0: CodeGenTarget
+    Version,
+    WarningsAsErrors, // stringValue0: "all" or comma separated list of warning codes or names.
+    DisableWarnings,  // stringValue0: comma separated list of warning codes or names.
+    EnableWarning,    // stringValue0: warning code or name.
+    DisableWarning,   // stringValue0: warning code or name.
+    DumpWarningDiagnostics,
+    InputFilesRemain,
+    EmitIr,                        // bool
+    ReportDownstreamTime,          // bool
+    ReportPerfBenchmark,           // bool
+    ReportCheckpointIntermediates, // bool
+    SkipSPIRVValidation,           // bool
+    SourceEmbedStyle,
+    SourceEmbedName,
+    SourceEmbedLanguage,
+    DisableShortCircuit,            // bool
+    MinimumSlangOptimization,       // bool
+    DisableNonEssentialValidations, // bool
+    DisableSourceMap,               // bool
+    UnscopedEnum,                   // bool
+    PreserveParameters, // bool: preserve all resource parameters in the output code.
+    // Target
+
+    Capability,                // intValue0: CapabilityName
+    DefaultImageFormatUnknown, // bool
+    DisableDynamicDispatch,    // bool
+    DisableSpecialization,     // bool
+    FloatingPointMode,         // intValue0: FloatingPointMode
+    DebugInformation,          // intValue0: DebugInfoLevel
+    LineDirectiveMode,
+    Optimization, // intValue0: OptimizationLevel
+    Obfuscate,    // bool
+
+    VulkanBindShift, // intValue0 (higher 8 bits): kind; intValue0(lower bits): set; intValue1:
+                     // shift
+    VulkanBindGlobals,       // intValue0: index; intValue1: set
+    VulkanInvertY,           // bool
+    VulkanUseDxPositionW,    // bool
+    VulkanUseEntryPointName, // bool
+    VulkanUseGLLayout,       // bool
+    VulkanEmitReflection,    // bool
+
+    GLSLForceScalarLayout,   // bool
+    EnableEffectAnnotations, // bool
+
+    EmitSpirvViaGLSL,     // bool (will be deprecated)
+    EmitSpirvDirectly,    // bool (will be deprecated)
+    SPIRVCoreGrammarJSON, // stringValue0: json path
+    IncompleteLibrary,    // bool, when set, will not issue an error when the linked program has
+                          // unresolved extern function symbols.
+
+    // Downstream
+
+    CompilerPath,
+    DefaultDownstreamCompiler,
+    DownstreamArgs, // stringValue0: downstream compiler name. stringValue1: argument list, one
+                    // per line.
+    PassThrough,
+
+    // Repro
+
+    DumpRepro,
+    DumpReproOnError,
+    ExtractRepro,
+    LoadRepro,
+    LoadReproDirectory,
+    ReproFallbackDirectory,
+
+    // Debugging
+
+    DumpAst,
+    DumpIntermediatePrefix,
+    DumpIntermediates, // bool
+    DumpIr,            // bool
+    DumpIrIds,
+    PreprocessorOutput,
+    OutputIncludes,
+    ReproFileSystem,
+    REMOVED_SerialIR, // deprecated and removed
+    SkipCodeGen,      // bool
+    ValidateIr,       // bool
+    VerbosePaths,
+    VerifyDebugSerialIr,
+    NoCodeGen, // Not used.
+
+    // Experimental
+
+    FileSystem,
+    Heterogeneous,
+    NoMangle,
+    NoHLSLBinding,
+    NoHLSLPackConstantBufferElements,
+    ValidateUniformity,
+    AllowGLSL,
+    EnableExperimentalPasses,
+    BindlessSpaceIndex, // int
+
+    // Internal
+
+    ArchiveType,
+    CompileCoreModule,
+    Doc,
+
+    IrCompression, //< deprecated
+
+    LoadCoreModule,
+    ReferenceModule,
+    SaveCoreModule,
+    SaveCoreModuleBinSource,
+    TrackLiveness,
+    LoopInversion, // bool, enable loop inversion optimization
+
+    ParameterBlocksUseRegisterSpaces, // Deprecated
+    LanguageVersion,                  // intValue0: SlangLanguageVersion
+    TypeConformance, // stringValue0: additional type conformance to link, in the format of
+                     // "<TypeName>:<IInterfaceName>[=<sequentialId>]", for example
+                     // "Impl:IFoo=3" or "Impl:IFoo".
+    EnableExperimentalDynamicDispatch, // bool, experimental
+    EmitReflectionJSON,                // bool
+
+    CountOfParsableOptions,
+
+    // Used in parsed options only.
+    DebugInformationFormat,  // intValue0: DebugInfoFormat
+    VulkanBindShiftAll,      // intValue0: kind; intValue1: shift
+    GenerateWholeProgram,    // bool
+    UseUpToDateBinaryModule, // bool, when set, will only load
+                             // precompiled modules if it is up-to-date with its source.
+    EmbedDownstreamIR,       // bool
+    ForceDXLayout,           // bool
+
+    // Add this new option to the end of the list to avoid breaking ABI as much as possible.
+    // Setting of EmitSpirvDirectly or EmitSpirvViaGLSL will turn into this option internally.
+    EmitSpirvMethod, // enum SlangEmitSpirvMethod
+
+    SaveGLSLModuleBinSource,
+
+    SkipDownstreamLinking, // bool, experimental
+    DumpModule,
+
+    GetModuleInfo,              // Print serialized module version and name
+    GetSupportedModuleVersions, // Print the min and max module versions this compiler supports
+
+    EmitSeparateDebug, // bool
+
+    // Floating point denormal handling modes
+    DenormalModeFp16,
+    DenormalModeFp32,
+    DenormalModeFp64,
+
+    // Bitfield options
+    UseMSVCStyleBitfieldPacking, // bool
+
+    ForceCLayout, // bool
 }
 
 CompilerOptionValueKind :: enum i32 {
@@ -415,7 +470,6 @@ IUnknown_VTable :: struct {
 	queryInterface: proc "system" (this: ^IUnknown, #by_ptr uuid: UUID, outObject: ^rawptr) -> Result,
 	addRef        : proc "system" (this: ^IUnknown) -> u32,
 	release       : proc "system" (this: ^IUnknown) -> u32,
-
 }
 
 ICastable :: struct #raw_union {
@@ -454,7 +508,7 @@ IFileSystem :: struct #raw_union {
 
 IFileSystem_VTable :: struct {
 	using icastable_vtable: ICastable_VTable,
-	loadFile: proc "system"(this: ^IFileSystem, path: cstring) -> Result,
+	loadFile: proc "system"(this: ^IFileSystem, path: cstring, outBlob: ^^IBlob) -> Result,
 }
 
 // Todo(Dragos): Should this be a rawptr?
@@ -465,7 +519,7 @@ ISharedLibrary :: struct #raw_union {
 	#subtype icastable: ICastable,
 	using vtable: ^struct {
 		using icastable_vtable: ICastable_VTable,
-		findSymbolByName: proc "system" (this: ^IFileSystem, name: cstring) -> rawptr,
+		findSymbolByName: proc "system" (this: ^ISharedLibrary, name: cstring) -> rawptr,
 	},
 }
 
@@ -509,6 +563,7 @@ IFileSystemExt_VTable :: struct {
 	calcCombinedPath     : proc "system"(this: ^IFileSystemExt, fromPath, path: cstring, pathOut: ^^IBlob) -> Result,
 	getPathType          : proc "system"(this: ^IFileSystemExt, path: cstring, pathTypeOut: ^PathType) -> Result,
 	getPath              : proc "system"(this: ^IFileSystemExt, path: cstring, outPath: ^^IBlob) -> Result,
+    clearCache           : proc "system"(this: ^IFileSystemExt),
 	enumeratePathContents: proc "system"(this: ^IFileSystemExt, path: cstring, callback: FileSystemContentsCallback, userData: rawptr) -> Result,
 	getOSPathKind        : proc "system"(this: ^IFileSystemExt) -> OSPathKind,
 }
@@ -565,19 +620,19 @@ DiagnosticsCallback :: #type proc "c"(message: cstring, userData: rawptr)
 
 
 ProgramLayout :: struct {
-
+    _pad0: [1]u8,
 }
 
 FunctionReflection :: struct {
-
+    _pad0: [1]u8,
 }
 
 DeclReflection :: struct {
-
+    _pad0: [1]u8,
 }
 
 IComponentType :: struct #raw_union {
-	#subtype iunknown: ^IUnknown,
+	#subtype iunknown: IUnknown,
 	using vtable: ^IComponentType_VTable,
 }
 
@@ -588,7 +643,7 @@ IComponentType_VTable :: struct {
 	getSpecializationParamCount: proc "system"(this: ^IComponentType) -> Int,
 	getEntryPointCode          : proc "system"(this: ^IComponentType, entryPointIndex: Int, targetIndex: Int, outCode: ^^IBlob, outDiagnostics: ^^IBlob) -> Result,
 	getResultAsFileSystem      : proc "system"(this: ^IComponentType, entryPointIndex: Int, targetIndex: Int, outFileSystem: ^^IMutableFileSystem) -> Result,
-	getEntryPointHash          : proc "system"(this: ^IComponentType, entryPointIndex, targetIndex: Int, outHash: ^^IBlob),
+	getEntryPointHash          : proc "system"(this: ^IComponentType, entryPointIndex, targetIndex: Int, outHash: ^^IBlob) -> Result,
 	specialize                 : proc "system"(this: ^IComponentType, specializationArgs: [^]SpecializationArg, specializationArgCount: Int, outSpecializedComponentType: ^^IComponentType, outDiagnostics: ^^IBlob) -> Result,
 	link                       : proc "system"(this: ^IComponentType, outLinkedComponentType: ^^IComponentType, outDiagnostics: ^^IBlob) -> Result,
 	getEntryPointHostCallable  : proc "system"(this: ^IComponentType, entryPointIndex, targetIndex: i32, outSharedLibrary: ^^ISharedLibrary, outDiagnostics: ^^IBlob) -> Result,
@@ -610,7 +665,16 @@ IEntryPoint :: struct #raw_union {
 ITypeConformance :: struct #raw_union {
 	#subtype icomponenttype: IComponentType,
 	using vtable: ^struct {
-		using icomponenttype_vtable: IComponentType_VTable,
+        using icomponenttype_vtable: IComponentType_VTable,
+    }
+}
+
+IComponentType2 :: struct #raw_union {
+	#subtype iunknown: IUnknown,
+	using vtable: ^struct {
+		using iunknown_vtable:      IUnknown_VTable,
+		getTargetCompileResult    : proc "system"( this: ^IComponentType2, targetIndex: Int, outCompileResult: ^^ICompileResult, outDiagnostics: ^^IBlob = nil,) -> Result,
+		getEntryPointCompileResult: proc "system"( this: ^IComponentType2, entryPointIndex: Int, targetIndex: Int, outCompileResult: ^^ICompileResult, outDiagnostics: ^^IBlob = nil,) -> Result,
 	},
 }
 
@@ -625,17 +689,19 @@ IModule :: struct #raw_union {
 		writeToFile              : proc "system"(this: ^IModule, fileName: cstring) -> Result,
 		getName                  : proc "system"(this: ^IModule) -> cstring,
 		getFilePath              : proc "system"(this: ^IModule) -> cstring,
-		getUNiqueIdentity        : proc "system"(this: ^IModule) -> cstring,
+		getUniqueIdentity        : proc "system"(this: ^IModule) -> cstring,
 		findAndCheckEntryPoint   : proc "system"(this: ^IModule, name: cstring, stage: Stage, outEntryPoint: ^^IEntryPoint, outDiagnostics: ^^IBlob) -> Result,
 		getDependencyFileCount   : proc "system"(this: ^IModule) -> i32,
 		getDependencyFilePath    : proc "system"(this: ^IModule, index: i32) -> cstring,
 		getModuleReflection      : proc "system"(this: ^IModule) -> ^DeclReflection,
+		disassemble              : proc "system"(this: ^IModule, outDisassembledBlob: ^^IBlob) -> Result,
 	},
 }
 
 SpecializationArgKind :: enum i32 {
 	Unknown,
 	Type,
+	Expr,
 }
 
 SpecializationArg_fromType :: #force_inline proc "contextless"(inType: ^TypeReflection) -> (rs: SpecializationArg) {
@@ -644,11 +710,49 @@ SpecializationArg_fromType :: #force_inline proc "contextless"(inType: ^TypeRefl
 	return rs
 }
 
+SpecializationArg_fromExpr :: #force_inline proc "contextless"(inExpr: cstring) -> (rs: SpecializationArg) {
+	rs.kind = .Expr
+	rs.expr = inExpr
+	return rs
+}
+
+LanguageVersion :: enum i32 {
+	UNKNOWN = 0,
+	LEGACY  = 2018,
+	_2025   = 2025,
+	_2026   = 2026,
+	DEFAULT = LEGACY,
+	LATEST  = _2026,
+}
+
+// This must be constructed with the correct values. See `kGlobalSessionDescDefaultValues`.
+GlobalSessionDesc :: struct {
+	structureSize: u32, //= sizeof(SlangGlobalSessionDesc);
+	/// Slang API version.
+	apiVersion: u32, // = SLANG_API_VERSION;
+	/// Specify the oldest Slang language version that any sessions will use.
+	minLanguageVersion: u32, // = SLANG_LANGUAGE_VERSION_2025;
+	/// Whether to enable GLSL support.
+	enableGLSL: bool, // = false;
+	/// Reserved for future use.
+	reserved: [16]u32,
+}
+#assert(size_of(GlobalSessionDesc) == 80)
+
+kGlobalSessionDescDefaultValues :: GlobalSessionDesc {
+	structureSize      = size_of(GlobalSessionDesc),
+	apiVersion         = API_VERSION,
+	minLanguageVersion = u32(LanguageVersion._2025),
+	enableGLSL         = false,
+}
+
+
 // TODO(Dragos): implement SpecializationArg::fromType
 SpecializationArg :: struct {
 	kind: SpecializationArgKind,
 	using _: struct #raw_union {
 		type: ^TypeReflection,
+		expr: cstring,
 	},
 }
 
@@ -686,6 +790,7 @@ SessionDesc :: struct {
 	allowGLSLSyntax         : bool,
 	compilerOptionEntries   : [^]CompilerOptionEntry,
 	compilerOptionEntryCount: u32,
+	skipSPIRVValidation     : bool,
 }
 
 
@@ -761,11 +866,12 @@ SlangResourceShape :: enum u32 {
 	RESOURCE_UNKNOWN             = 0x08,
 	ACCELERATION_STRUCTURE       = 0x09,
 	TEXTURE_SUBPASS              = 0x0A,
-	RESOURCE_EXT_SHAPE_MASK      = 0xF0,
+	RESOURCE_EXT_SHAPE_MASK      = 0x1F0,
 	TEXTURE_FEEDBACK_FLAG        = 0x10,
 	TEXTURE_SHADOW_FLAG          = 0x20,
 	TEXTURE_ARRAY_FLAG           = 0x40,
 	TEXTURE_MULTISAMPLE_FLAG     = 0x80,
+	TEXTURE_COMBINED_FLAG        = 0x100,
 	TEXTURE_1D_ARRAY             = TEXTURE_1D | TEXTURE_ARRAY_FLAG,
 	TEXTURE_2D_ARRAY             = TEXTURE_2D | TEXTURE_ARRAY_FLAG,
 	TEXTURE_CUBE_ARRAY           = TEXTURE_CUBE | TEXTURE_ARRAY_FLAG,
@@ -949,6 +1055,8 @@ ISession :: struct #raw_union {
 		getLoadedModule                      : proc "system"(this: ^ISession, indxe: Int) -> ^IModule,
 		isBinaryModuleUpToDate               : proc "system"(this: ^ISession, modulePath: cstring, binaryModuleBlob: ^IBlob) -> bool,
 		loadModuleFromSourceString           : proc "system"(this: ^ISession, moduleName, path, str: cstring, outDiagnostics: ^^IBlob) -> ^IModule,
+		getDynamicObjectRTTIBytes            : proc "system"(this: ^ISession, type: ^TypeReflection, interfaceType: ^TypeReflection, outRTTIDataBuffer: ^u32, bufferSizeInBytes: u32) -> Result,
+		loadModuleInfoFromIRBlob             : proc "system"(this: ^ISession, source: ^IBlob, outModuleVersion: ^Int, outModuleCompilerVersion: ^cstring, outModuleName: ^cstring) -> Result,
 	},
 }
 
@@ -958,7 +1066,23 @@ IMetadata :: struct #raw_union {
 	using vtable: ^struct {
 		using icastable_vtable: ICastable_VTable,
 		isParameterLocationUsed: proc "system"(this: ^IMetadata, category: ParameterCategory, spaceIndex, registerIndex: UInt, outUsed: ^bool) -> Result,
+		getDebugBuildIdentifier: proc "system"(this: ^IMetadata) -> cstring,
 	},
+}
+
+ICompileResult :: struct #raw_union {
+	#subtype icastable: ICastable,
+	using vtable: ^struct {
+		using icastable_vtable: ICastable_VTable,
+		getItemCount           : proc "system"(this: ^ICompileResult) -> u32,
+		getItemData            : proc "system"(this: ^ICompileResult, index: u32, outBlob: ^^IBlob) -> Result,
+		getMetadata            : proc "system"(this: ^ICompileResult, outMetadata: ^^IMetadata) -> Result,
+	},
+}
+
+BuiltinModuleName :: enum i32 {
+	Core,
+	GLSL,
 }
 
 IGlobalSession :: struct #raw_union {
@@ -967,7 +1091,7 @@ IGlobalSession :: struct #raw_union {
 		using iunknown_vtable: IUnknown_VTable,
 		createSession                     : proc "system"(this: ^IGlobalSession, #by_ptr desc: SessionDesc, outSession: ^^ISession) -> Result,
 		findProfile                       : proc "system"(this: ^IGlobalSession, name: cstring) -> ProfileID,
-		setDownstreamCompierPath          : proc "system"(this: ^IGlobalSession, passThrough: PassThrough, path: cstring),
+		setDownstreamCompilerPath         : proc "system"(this: ^IGlobalSession, passThrough: PassThrough, path: cstring),
 		setDownstreamCompilerPrelude      : proc "system"(this: ^IGlobalSession, passThrough: PassThrough, preduleText: cstring),
 		getDownstreamCompilerPrelude      : proc "system"(this: ^IGlobalSession, passThrough: PassThrough, outPrelude: ^^IBlob),
 		getBuildTagString                 : proc "system"(this: ^IGlobalSession) -> cstring,
@@ -991,14 +1115,23 @@ IGlobalSession :: struct #raw_union {
 		setSPIRVCoreGrammar               : proc "system"(this: ^IGlobalSession, jsonPath: cstring) -> Result,
 		parseCommandLineArguments         : proc "system"(this: ^IGlobalSession, argc: i32, argv: [^]cstring, outSessionDesc: ^SessionDesc, outAuxAllocation: ^^IUnknown) -> Result,
 		getSessionDescDigest              : proc "system"(this: ^IGlobalSession, sessionDesc: ^SessionDesc, outBlob: ^^IBlob) -> Result,
-	},
+		compileBuiltinModule:               proc "system"(this: ^IGlobalSession, module: BuiltinModuleName, flags: CompileCoreModuleFlags) -> Result, 
+        loadBuiltinModule:                  proc "system"(this: ^IGlobalSession, module: BuiltinModuleName, moduleData: rawptr, sizeInBytes: uint) -> Result, 
+        saveBuiltinModule:                  proc "system"(this: ^IGlobalSession, module: BuiltinModuleName, outBlob: ^^IBlob) -> Result,
+    },
 }
 
 @(link_prefix="slang_")
 @(default_calling_convention="c")
 foreign libslang {
+	createBlob :: proc(data: rawptr, size: uint) -> ^IBlob ---
+	loadModuleFromSource :: proc(session: ^ISession, path: cstring, source: cstring, sourceSize: uint, outDiagnostics: ^^IBlob = nil) -> ^IModule ---
+	loadModuleFromIRBlob :: proc(session: ^ISession, moduleName: cstring, path: cstring, source: cstring, sourceSize: uint, outDiagnostics: ^^IBlob = nil) -> ^IModule ---
+	loadModuleInfoFromIRBlob :: proc(session: ^ISession, source: rawptr, sourceSize: uint, outModuleVersion: ^Int, outModuleCompilerVersion: ^cstring, outModuleName: ^cstring) -> Result ---
 	createGlobalSession :: proc(apiVersion: Int, outGlobalSession: ^^IGlobalSession) -> Result ---
+	createGlobalSession2 :: proc(#by_ptr desc: GlobalSessionDesc, outGlobalSession: ^^IGlobalSession) -> Result ---
 	shutdown :: proc() ---
+	getLastInternalErrorMessage :: proc() -> cstring ---
 }
 
 // NOTE(Dragos): sp functions seem to want to become deprecated, but some still exist
