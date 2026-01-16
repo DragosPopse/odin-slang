@@ -213,178 +213,181 @@ EmitSpirvMethod :: enum i32 {
 }
 
 CompilerOptionName :: enum i32 {
-    MacroDefine, // stringValue0: macro name;  stringValue1: macro value
-    DepFile,
-    EntryPointName,
-    Specialize,
-    Help,
-    HelpStyle,
-    Include, // stringValue: additional include path.
-    Language,
-    MatrixLayoutColumn,         // bool
-    MatrixLayoutRow,            // bool
-    ZeroInitialize,             // bool
-    IgnoreCapabilities,         // bool
-    RestrictiveCapabilityCheck, // bool
-    ModuleName,                 // stringValue0: module name.
-    Output,
-    Profile, // intValue0: profile
-    Stage,   // intValue0: stage
-    Target,  // intValue0: CodeGenTarget
-    Version,
-    WarningsAsErrors, // stringValue0: "all" or comma separated list of warning codes or names.
-    DisableWarnings,  // stringValue0: comma separated list of warning codes or names.
-    EnableWarning,    // stringValue0: warning code or name.
-    DisableWarning,   // stringValue0: warning code or name.
-    DumpWarningDiagnostics,
-    InputFilesRemain,
-    EmitIr,                        // bool
-    ReportDownstreamTime,          // bool
-    ReportPerfBenchmark,           // bool
-    ReportCheckpointIntermediates, // bool
-    SkipSPIRVValidation,           // bool
-    SourceEmbedStyle,
-    SourceEmbedName,
-    SourceEmbedLanguage,
-    DisableShortCircuit,            // bool
-    MinimumSlangOptimization,       // bool
-    DisableNonEssentialValidations, // bool
-    DisableSourceMap,               // bool
-    UnscopedEnum,                   // bool
-    PreserveParameters, // bool: preserve all resource parameters in the output code.
-    // Target
+	MacroDefine, // stringValue0: macro name;  stringValue1: macro value
+	DepFile,
+	EntryPointName,
+	Specialize,
+	Help,
+	HelpStyle,
+	Include, // stringValue: additional include path.
+	Language,
+	MatrixLayoutColumn,         // bool
+	MatrixLayoutRow,            // bool
+	ZeroInitialize,             // bool
+	IgnoreCapabilities,         // bool
+	RestrictiveCapabilityCheck, // bool
+	ModuleName,                 // stringValue0: module name.
+	Output,
+	Profile, // intValue0: profile
+	Stage,   // intValue0: stage
+	Target,  // intValue0: CodeGenTarget
+	Version,
+	WarningsAsErrors, // stringValue0: "all" or comma separated list of warning codes or names.
+	DisableWarnings,  // stringValue0: comma separated list of warning codes or names.
+	EnableWarning,    // stringValue0: warning code or name.
+	DisableWarning,   // stringValue0: warning code or name.
+	DumpWarningDiagnostics,
+	InputFilesRemain,
+	EmitIr,                        // bool
+	ReportDownstreamTime,          // bool
+	ReportPerfBenchmark,           // bool
+	ReportCheckpointIntermediates, // bool
+	SkipSPIRVValidation,           // bool
+	SourceEmbedStyle,
+	SourceEmbedName,
+	SourceEmbedLanguage,
+	DisableShortCircuit,            // bool
+	MinimumSlangOptimization,       // bool
+	DisableNonEssentialValidations, // bool
+	DisableSourceMap,               // bool
+	UnscopedEnum,                   // bool
+	PreserveParameters, // bool: preserve all resource parameters in the output code.
+	// Target
 
-    Capability,                // intValue0: CapabilityName
-    DefaultImageFormatUnknown, // bool
-    DisableDynamicDispatch,    // bool
-    DisableSpecialization,     // bool
-    FloatingPointMode,         // intValue0: FloatingPointMode
-    DebugInformation,          // intValue0: DebugInfoLevel
-    LineDirectiveMode,
-    Optimization, // intValue0: OptimizationLevel
-    Obfuscate,    // bool
+	Capability,                // intValue0: CapabilityName
+	// @NOTE(Xaryen): ^might be an error since aforementioned enum doesn't exist
+	// and e.g. https://docs.shader-slang.org/en/latest/external/slang/docs/user-guide/a2-01-spirv-target-specific.html
+	// uses stringValue0 instead to set vk_mem_model
+	DefaultImageFormatUnknown, // bool
+	DisableDynamicDispatch,    // bool
+	DisableSpecialization,     // bool
+	FloatingPointMode,         // intValue0: FloatingPointMode
+	DebugInformation,          // intValue0: DebugInfoLevel
+	LineDirectiveMode,
+	Optimization, // intValue0: OptimizationLevel
+	Obfuscate,    // bool
 
-    VulkanBindShift, // intValue0 (higher 8 bits): kind; intValue0(lower bits): set; intValue1:
-                     // shift
-    VulkanBindGlobals,       // intValue0: index; intValue1: set
-    VulkanInvertY,           // bool
-    VulkanUseDxPositionW,    // bool
-    VulkanUseEntryPointName, // bool
-    VulkanUseGLLayout,       // bool
-    VulkanEmitReflection,    // bool
+	VulkanBindShift, // intValue0 (higher 8 bits): kind; intValue0(lower bits): set; intValue1:
+					 // shift
+	VulkanBindGlobals,       // intValue0: index; intValue1: set
+	VulkanInvertY,           // bool
+	VulkanUseDxPositionW,    // bool
+	VulkanUseEntryPointName, // bool
+	VulkanUseGLLayout,       // bool
+	VulkanEmitReflection,    // bool
 
-    GLSLForceScalarLayout,   // bool
-    EnableEffectAnnotations, // bool
+	GLSLForceScalarLayout,   // bool
+	EnableEffectAnnotations, // bool
 
-    EmitSpirvViaGLSL,     // bool (will be deprecated)
-    EmitSpirvDirectly,    // bool (will be deprecated)
-    SPIRVCoreGrammarJSON, // stringValue0: json path
-    IncompleteLibrary,    // bool, when set, will not issue an error when the linked program has
-                          // unresolved extern function symbols.
+	EmitSpirvViaGLSL,     // bool (will be deprecated)
+	EmitSpirvDirectly,    // bool (will be deprecated)
+	SPIRVCoreGrammarJSON, // stringValue0: json path
+	IncompleteLibrary,    // bool, when set, will not issue an error when the linked program has
+						  // unresolved extern function symbols.
 
-    // Downstream
+	// Downstream
 
-    CompilerPath,
-    DefaultDownstreamCompiler,
-    DownstreamArgs, // stringValue0: downstream compiler name. stringValue1: argument list, one
-                    // per line.
-    PassThrough,
+	CompilerPath,
+	DefaultDownstreamCompiler,
+	DownstreamArgs, // stringValue0: downstream compiler name. stringValue1: argument list, one
+					// per line.
+	PassThrough,
 
-    // Repro
+	// Repro
 
-    DumpRepro,
-    DumpReproOnError,
-    ExtractRepro,
-    LoadRepro,
-    LoadReproDirectory,
-    ReproFallbackDirectory,
+	DumpRepro,
+	DumpReproOnError,
+	ExtractRepro,
+	LoadRepro,
+	LoadReproDirectory,
+	ReproFallbackDirectory,
 
-    // Debugging
+	// Debugging
 
-    DumpAst,
-    DumpIntermediatePrefix,
-    DumpIntermediates, // bool
-    DumpIr,            // bool
-    DumpIrIds,
-    PreprocessorOutput,
-    OutputIncludes,
-    ReproFileSystem,
-    REMOVED_SerialIR, // deprecated and removed
-    SkipCodeGen,      // bool
-    ValidateIr,       // bool
-    VerbosePaths,
-    VerifyDebugSerialIr,
-    NoCodeGen, // Not used.
+	DumpAst,
+	DumpIntermediatePrefix,
+	DumpIntermediates, // bool
+	DumpIr,            // bool
+	DumpIrIds,
+	PreprocessorOutput,
+	OutputIncludes,
+	ReproFileSystem,
+	REMOVED_SerialIR, // deprecated and removed
+	SkipCodeGen,      // bool
+	ValidateIr,       // bool
+	VerbosePaths,
+	VerifyDebugSerialIr,
+	NoCodeGen, // Not used.
 
-    // Experimental
+	// Experimental
 
-    FileSystem,
-    Heterogeneous,
-    NoMangle,
-    NoHLSLBinding,
-    NoHLSLPackConstantBufferElements,
-    ValidateUniformity,
-    AllowGLSL,
-    EnableExperimentalPasses,
-    BindlessSpaceIndex, // int
+	FileSystem,
+	Heterogeneous,
+	NoMangle,
+	NoHLSLBinding,
+	NoHLSLPackConstantBufferElements,
+	ValidateUniformity,
+	AllowGLSL,
+	EnableExperimentalPasses,
+	BindlessSpaceIndex, // int
 
-    // Internal
+	// Internal
 
-    ArchiveType,
-    CompileCoreModule,
-    Doc,
+	ArchiveType,
+	CompileCoreModule,
+	Doc,
 
-    IrCompression, //< deprecated
+	IrCompression, //< deprecated
 
-    LoadCoreModule,
-    ReferenceModule,
-    SaveCoreModule,
-    SaveCoreModuleBinSource,
-    TrackLiveness,
-    LoopInversion, // bool, enable loop inversion optimization
+	LoadCoreModule,
+	ReferenceModule,
+	SaveCoreModule,
+	SaveCoreModuleBinSource,
+	TrackLiveness,
+	LoopInversion, // bool, enable loop inversion optimization
 
-    ParameterBlocksUseRegisterSpaces, // Deprecated
-    LanguageVersion,                  // intValue0: SlangLanguageVersion
-    TypeConformance, // stringValue0: additional type conformance to link, in the format of
-                     // "<TypeName>:<IInterfaceName>[=<sequentialId>]", for example
-                     // "Impl:IFoo=3" or "Impl:IFoo".
-    EnableExperimentalDynamicDispatch, // bool, experimental
-    EmitReflectionJSON,                // bool
+	ParameterBlocksUseRegisterSpaces, // Deprecated
+	LanguageVersion,                  // intValue0: SlangLanguageVersion
+	TypeConformance, // stringValue0: additional type conformance to link, in the format of
+					 // "<TypeName>:<IInterfaceName>[=<sequentialId>]", for example
+					 // "Impl:IFoo=3" or "Impl:IFoo".
+	EnableExperimentalDynamicDispatch, // bool, experimental
+	EmitReflectionJSON,                // bool
 
-    CountOfParsableOptions,
+	CountOfParsableOptions,
 
-    // Used in parsed options only.
-    DebugInformationFormat,  // intValue0: DebugInfoFormat
-    VulkanBindShiftAll,      // intValue0: kind; intValue1: shift
-    GenerateWholeProgram,    // bool
-    UseUpToDateBinaryModule, // bool, when set, will only load
-                             // precompiled modules if it is up-to-date with its source.
-    EmbedDownstreamIR,       // bool
-    ForceDXLayout,           // bool
+	// Used in parsed options only.
+	DebugInformationFormat,  // intValue0: DebugInfoFormat
+	VulkanBindShiftAll,      // intValue0: kind; intValue1: shift
+	GenerateWholeProgram,    // bool
+	UseUpToDateBinaryModule, // bool, when set, will only load
+							 // precompiled modules if it is up-to-date with its source.
+	EmbedDownstreamIR,       // bool
+	ForceDXLayout,           // bool
 
-    // Add this new option to the end of the list to avoid breaking ABI as much as possible.
-    // Setting of EmitSpirvDirectly or EmitSpirvViaGLSL will turn into this option internally.
-    EmitSpirvMethod, // enum SlangEmitSpirvMethod
+	// Add this new option to the end of the list to avoid breaking ABI as much as possible.
+	// Setting of EmitSpirvDirectly or EmitSpirvViaGLSL will turn into this option internally.
+	EmitSpirvMethod, // enum SlangEmitSpirvMethod
 
-    SaveGLSLModuleBinSource,
+	SaveGLSLModuleBinSource,
 
-    SkipDownstreamLinking, // bool, experimental
-    DumpModule,
+	SkipDownstreamLinking, // bool, experimental
+	DumpModule,
 
-    GetModuleInfo,              // Print serialized module version and name
-    GetSupportedModuleVersions, // Print the min and max module versions this compiler supports
+	GetModuleInfo,              // Print serialized module version and name
+	GetSupportedModuleVersions, // Print the min and max module versions this compiler supports
 
-    EmitSeparateDebug, // bool
+	EmitSeparateDebug, // bool
 
-    // Floating point denormal handling modes
-    DenormalModeFp16,
-    DenormalModeFp32,
-    DenormalModeFp64,
+	// Floating point denormal handling modes
+	DenormalModeFp16,
+	DenormalModeFp32,
+	DenormalModeFp64,
 
-    // Bitfield options
-    UseMSVCStyleBitfieldPacking, // bool
+	// Bitfield options
+	UseMSVCStyleBitfieldPacking, // bool
 
-    ForceCLayout, // bool
+	ForceCLayout, // bool
 }
 
 CompilerOptionValueKind :: enum i32 {
@@ -563,7 +566,7 @@ IFileSystemExt_VTable :: struct {
 	calcCombinedPath     : proc "system"(this: ^IFileSystemExt, fromPath, path: cstring, pathOut: ^^IBlob) -> Result,
 	getPathType          : proc "system"(this: ^IFileSystemExt, path: cstring, pathTypeOut: ^PathType) -> Result,
 	getPath              : proc "system"(this: ^IFileSystemExt, path: cstring, outPath: ^^IBlob) -> Result,
-    clearCache           : proc "system"(this: ^IFileSystemExt),
+	clearCache           : proc "system"(this: ^IFileSystemExt),
 	enumeratePathContents: proc "system"(this: ^IFileSystemExt, path: cstring, callback: FileSystemContentsCallback, userData: rawptr) -> Result,
 	getOSPathKind        : proc "system"(this: ^IFileSystemExt) -> OSPathKind,
 }
@@ -665,8 +668,8 @@ IEntryPoint :: struct #raw_union {
 ITypeConformance :: struct #raw_union {
 	#subtype icomponenttype: IComponentType,
 	using vtable: ^struct {
-        using icomponenttype_vtable: IComponentType_VTable,
-    }
+		using icomponenttype_vtable: IComponentType_VTable,
+	},
 }
 
 IComponentType2 :: struct #raw_union {
@@ -1116,9 +1119,9 @@ IGlobalSession :: struct #raw_union {
 		parseCommandLineArguments         : proc "system"(this: ^IGlobalSession, argc: i32, argv: [^]cstring, outSessionDesc: ^SessionDesc, outAuxAllocation: ^^IUnknown) -> Result,
 		getSessionDescDigest              : proc "system"(this: ^IGlobalSession, sessionDesc: ^SessionDesc, outBlob: ^^IBlob) -> Result,
 		compileBuiltinModule:               proc "system"(this: ^IGlobalSession, module: BuiltinModuleName, flags: CompileCoreModuleFlags) -> Result, 
-        loadBuiltinModule:                  proc "system"(this: ^IGlobalSession, module: BuiltinModuleName, moduleData: rawptr, sizeInBytes: uint) -> Result, 
-        saveBuiltinModule:                  proc "system"(this: ^IGlobalSession, module: BuiltinModuleName, outBlob: ^^IBlob) -> Result,
-    },
+		loadBuiltinModule:                  proc "system"(this: ^IGlobalSession, module: BuiltinModuleName, moduleData: rawptr, sizeInBytes: uint) -> Result, 
+		saveBuiltinModule:                  proc "system"(this: ^IGlobalSession, module: BuiltinModuleName, outBlob: ^^IBlob) -> Result,
+	},
 }
 
 @(link_prefix="slang_")
