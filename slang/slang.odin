@@ -621,19 +621,6 @@ DiagnosticCallback :: #type proc "c"(message: cstring, userData: rawptr)
 
 
 
-
-ProgramLayout :: struct {
-    _pad0: [1]u8,
-}
-
-FunctionReflection :: struct {
-    _pad0: [1]u8,
-}
-
-DeclReflection :: struct {
-    _pad0: [1]u8,
-}
-
 IComponentType :: struct #raw_union {
 	#subtype iunknown: IUnknown,
 	using vtable: ^IComponentType_VTable,
@@ -796,235 +783,16 @@ SessionDesc :: struct {
 	skipSPIRVValidation     : bool,
 }
 
-
-
-ReflectionGenericArgType :: enum i32 {
-	TYPE,
-	INT,
-	BOOL,
-}
-
-TypeKind :: enum u32 {
-	NONE,
-	STRUCT,
-	ARRAY,
-	MATRIX,
-	VECTOR,
-	SCALAR,
-	CONSTANT_BUFFER,
-	RESOURCE,
-	SAMPLER_STATE,
-	TEXTURE_BUFFER,
-	SHADER_STORAGE_BUFFER,
-	PARAMETER_BLOCK,
-	GENERIC_TYPE_PARAMETER,
-	INTERFACE,
-	OUTPUT_STREAM,
-	MESH_OUTPUT,
-	SPECIALIZED,
-	FEEDBACK,
-	POINTER,
-	DYNAMIC_RESOURCE,
-}
-
-ScalarType :: enum u32 {
-	NONE,
-	VOID,
-	BOOL,
-	INT32,
-	UINT32,
-	INT64,
-	UINT64,
-	FLOAT16,
-	FLOAT32,
-	FLOAT64,
-	INT8,
-	UINT8,
-	INT16,
-	UINT16,
-	INTPTR,
-	UINTPTR,
-}
-
-DeclKind :: enum u32 {
-	UNSUPPORTED_FOR_REFLECTION,
-	STRUCT,
-	FUNC,
-	MODULE,
-	GENERIC,
-	VARIABLE,
-	NAMESPACE,
-}
-
-SlangResourceShape :: enum u32 {
-	BASE_SHAPE_MASK              = 0x0F,
-	NONE                         = 0x00,
-	TEXTURE_1D                   = 0x01,
-	TEXTURE_2D                   = 0x02,
-	TEXTURE_3D                   = 0x03,
-	TEXTURE_CUBE                 = 0x04,
-	TEXTURE_BUFFER               = 0x05,
-	STRUCTURED_BUFFER            = 0x06,
-	BYTE_ADDRESS_BUFFER          = 0x07,
-	RESOURCE_UNKNOWN             = 0x08,
-	ACCELERATION_STRUCTURE       = 0x09,
-	TEXTURE_SUBPASS              = 0x0A,
-	RESOURCE_EXT_SHAPE_MASK      = 0x1F0,
-	TEXTURE_FEEDBACK_FLAG        = 0x10,
-	TEXTURE_SHADOW_FLAG          = 0x20,
-	TEXTURE_ARRAY_FLAG           = 0x40,
-	TEXTURE_MULTISAMPLE_FLAG     = 0x80,
-	TEXTURE_COMBINED_FLAG        = 0x100,
-	TEXTURE_1D_ARRAY             = TEXTURE_1D | TEXTURE_ARRAY_FLAG,
-	TEXTURE_2D_ARRAY             = TEXTURE_2D | TEXTURE_ARRAY_FLAG,
-	TEXTURE_CUBE_ARRAY           = TEXTURE_CUBE | TEXTURE_ARRAY_FLAG,
-	TEXTURE_2D_MULTISAMPLE       = TEXTURE_2D | TEXTURE_MULTISAMPLE_FLAG,
-	TEXTURE_2D_MULTISAMPLE_ARRAY = TEXTURE_2D | TEXTURE_MULTISAMPLE_FLAG | TEXTURE_ARRAY_FLAG,
-	TEXTURE_SUBPASS_MULTISAMPLE  = TEXTURE_SUBPASS | TEXTURE_MULTISAMPLE_FLAG,
-}
-
-ResourceAccess :: enum u32 {
-	NONE,
-	READ,
-	READ_WRITE,
-	RASTER_ORDERED,
-	APPEND,
-	CONSUME,
-	WRITE,
-	FEEDBACK,
-	UNKNOWN = 0x7FFFFFFF,
-}
-
-ParameterCategory :: enum u32 {
-	NONE,
-	MIXED,
-	CONSTANT_BUFFER,
-	SHADER_RESOURCE,
-	UNORDERED_ACCESS,
-	VARYING_INPUT,
-	VARYING_OUTPUT,
-	SAMPLER_STATE,
-	UNIFORM,
-	DESCRIPTOR_TABLE_SLOT,
-	SPECIALIZATION_CONSTANT,
-	PUSH_CONSTANT_BUFFER,
-	// HLSL register `space`, Vulkan GLSL `set`
-	REGISTER_SPACE,
-	// TODO: Ellie, Both APIs treat mesh outputs as more or less varying output,
-	// Does it deserve to be represented here??
-	// A parameter whose type is to be specialized by a global generic type argument
-	GENERIC,
-	RAY_PAYLOAD,
-	HIT_ATTRIBUTES,
-	CALLABLE_PAYLOAD,
-	SHADER_RECORD,
-	// An existential type parameter represents a "hole" that
-	// needs to be filled with a concrete type to enable
-	// generation of specialized code.
-	//
-	// Consider this example:
-	//
-	//      struct MyParams
-	//      {
-	//          IMaterial material;
-	//          ILight lights[3];
-	//      };
-	//
-	// This `MyParams` type introduces two existential type parameters:
-	// one for `material` and one for `lights`. Even though `lights`
-	// is an array, it only introduces one type parameter, because
-	// we need to hae a *single* concrete type for all the array
-	// elements to be able to generate specialized code.
-	//
-	EXISTENTIAL_TYPE_PARAM,
-	// An existential object parameter represents a value
-	// that needs to be passed in to provide data for some
-	// interface-type shader paameter.
-	//
-	// Consider this example:
-	//
-	//      struct MyParams
-	//      {
-	//          IMaterial material;
-	//          ILight lights[3];
-	//      };
-	//
-	// This `MyParams` type introduces four existential object parameters:
-	// one for `material` and three for `lights` (one for each array
-	// element). This is consistent with the number of interface-type
-	// "objects" that are being passed through to the shader.
-	//
-	EXISTENTIAL_OBJECT_PARAM,
-	// The register space offset for the sub-elements that occupies register spaces.
-	SUB_ELEMENT_REGISTER_SPACE,
-	// The input_attachment_index subpass occupancy tracker
-	SUBPASS,
-	// Metal tier-1 argument buffer element [[id]].
-	METAL_ARGUMENT_BUFFER_ELEMENT,
-	// Metal [[attribute]] inputs.
-	METAL_ATTRIBUTE,
-	// Metal [[payload]] inputs
-	METAL_PAYLOAD,
-}
-
-BindingType :: enum u32 {
-	UNKNOWN = 0,
-	SAMPLER,
-	TEXTURE,
-	CONSTANT_BUFFER,
-	PARAMETER_BLOCK,
-	TYPED_BUFFER,
-	RAW_BUFFER,
-	COMBINED_TEXTURE_SAMPLER,
-	INPUT_RENDER_TARGET,
-	INLINE_UNIFORM_DATA,
-	RAY_TRACING_ACCELERATION_STRUCTURE,
-	VARYING_INPUT,
-	VARYING_OUTPUT,
-	EXISTENTIAL_VALUE,
-	PUSH_CONSTANT,
-	MUTABLE_FLAG = 0x100,
-
-	// TODO(Dragos): fix typo in main repo SLANG_BINDING_TYPE_MUTABLE_TETURE
-	MUTABLE_TEXTURE = TEXTURE | MUTABLE_FLAG,
-   	MUTABLE_TYPED_BUFFER = TYPED_BUFFER | MUTABLE_FLAG,
-	MUTABLE_RAW_BUFFER = RAW_BUFFER | MUTABLE_FLAG,
-
-	BASE_MASK = 0x00FF,
-	EXT_MASK = 0xFF00,
-}
-
-SlangModifierID :: enum u32 {
-	SHARED,
-	NO_DIFF,
-	STATIC,
-	CONST,
-	EXPORT,
-	EXTERN,
-	DIFFERENTIABLE,
-	MUTATING,
-	IN,
-	OUT,
-	INOUT,
-}
-
-ImageFormat :: u32 {
+ImageFormat :: enum u32 {
 	// TODO(Dragos): see slang-image-format-defs.h
 }
 
 UNBOUNDED_SIZE :: ~uint(0)
-
-TypeReflection :: struct {
-
-}
+UNKNOWN_SIZE   :: UNBOUNDED_SIZE - 1
 
 LayoutRules :: enum u32 {
 	DEFAULT,
 	METAL_ARGUMENT_BUFFER_TIER_2,
-}
-
-TypeLayoutReflection :: struct {
-
 }
 
 ContainerType :: enum i32 {
@@ -1068,7 +836,7 @@ IMetadata :: struct #raw_union {
 	#subtype icastable: ICastable,
 	using vtable: ^struct {
 		using icastable_vtable: ICastable_VTable,
-		isParameterLocationUsed: proc "system"(this: ^IMetadata, category: ParameterCategory, spaceIndex, registerIndex: UInt, outUsed: ^bool) -> Result,
+		isParameterLocationUsed: proc "system"(this: ^IMetadata, category: SlangParameterCategory, spaceIndex, registerIndex: UInt, outUsed: ^bool) -> Result,
 		getDebugBuildIdentifier: proc "system"(this: ^IMetadata) -> cstring,
 	},
 }
@@ -1137,10 +905,3 @@ foreign libslang {
 	getLastInternalErrorMessage :: proc() -> cstring ---
 }
 
-// NOTE(Dragos): sp functions seem to want to become deprecated, but some still exist
-@(link_prefix="sp")
-@(default_calling_convention="c")
-foreign libslang {
-	ReflectionType_GetKind :: proc(type: ^TypeReflection) -> TypeKind ---
-	ReflectionType_GetFieldCount :: proc(type: ^TypeReflection) -> u32 ---
-}
