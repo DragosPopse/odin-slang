@@ -1,5 +1,104 @@
 package slang
 
-ICompileRequest :: struct #raw_union {
+SlangReflection :: ShaderReflection
 
+DiagnosticFlags :: enum i32 {
+	VERBOSE_PATHS = 0x01,
+	TREAT_WARNINGS_AS_ERRORS = 0x02,
+}
+
+Severity :: enum i32 {
+	DISABLED = 0, /**< A message that is disabled, filtered out. */
+	NOTE,         /**< An informative message. */
+	WARNING,      /**< A warning, which indicates a possible problem. */
+	ERROR,        /**< An error, indicating that compilation failed. */
+	FATAL,        /**< An unrecoverable error, which forced compilation to abort. */
+	INTERNAL,     /**< An internal error, indicating a logic error in the compiler.*/
+}
+
+ICompileRequest :: struct #raw_union {
+	#subtype iunknown: IUnknown,
+	using vtable: ^struct {
+		using iunknown_vtable: IUnknown_VTable,
+		setFileSystem:               proc "system"(this: ^ICompileRequest, fileSystem: ^IFileSystem,),
+		setCompileFlags:             proc "system"(this: ^ICompileRequest, flags: CompileFlags,),
+		getCompileFlags:             proc "system"(this: ^ICompileRequest,) -> CompileFlags,
+		setDumpIntermediates:        proc "system"(this: ^ICompileRequest, enable: i32,),
+		setDumpIntermediatePrefix:   proc "system"(this: ^ICompileRequest, prefix: cstring,),
+		setLineDirectiveMode:        proc "system"(this: ^ICompileRequest, mode: LineDirectiveMode,),
+		setCodeGenTarget:            proc "system"(this: ^ICompileRequest, target: CompileTarget,),
+		addCodeGenTarget:            proc "system"(this: ^ICompileRequest,target: CompileTarget,) -> i32,
+		setTargetProfile:            proc "system"(this: ^ICompileRequest,targetIndex: i32, profile: ProfileID,),
+		setTargetFlags:              proc "system"(this: ^ICompileRequest,targetIndex: i32, flags: TargetFlags,),
+		setTargetFloatingPointMode:  proc "system"(this: ^ICompileRequest,targetIndex: i32, mode: FloatingPointMode,),
+		setTargetMatrixLayoutMode:   proc "system"(this: ^ICompileRequest,targetIndex: i32, mode: MatrixLayoutMode,),
+		setMatrixLayoutMode:         proc "system"(this: ^ICompileRequest, mode: MatrixLayoutMode,),
+		setDebugInfoLevel:           proc "system"(this: ^ICompileRequest, level: DebugInfoLevel,),
+		setOptimizationLevel:        proc "system"(this: ^ICompileRequest, level: OptimizationLevel,),
+		setOutputContainerFormat:    proc "system"(this: ^ICompileRequest, format: ContainerFormat,),
+		setPassThrough:              proc "system"(this: ^ICompileRequest, passThrough: PassThrough,),
+		setDiagnosticCallback:       proc "system"(this: ^ICompileRequest,callback: DiagnosticCallback, userData: rawptr,),
+		setWriter:                   proc "system"(this: ^ICompileRequest,channel: WriterChannel, writer: ^IWriter,),
+		getWriter:                   proc "system"(this: ^ICompileRequest,channel: WriterChannel,) -> ^IWriter,
+		addSearchPath:               proc "system"(this: ^ICompileRequest, searchDir: cstring,),
+		addPreprocessorDefine:       proc "system"(this: ^ICompileRequest,key: cstring, value: cstring,),
+		processCommandLineArguments: proc "system"(this: ^ICompileRequest,args: [^]cstring,argCount: i32,) -> Result,
+		addTranslationUnit:          proc "system"(this: ^ICompileRequest,language: SourceLanguage,name: cstring,) -> i32,
+		setDefaultModuleName:        proc "system"(this: ^ICompileRequest, defaultModuleName: cstring,),
+		addTranslationUnitPreprocessorDefine: proc "system"(this: ^ICompileRequest,translationUnitIndex: i32,key: cstring, value: cstring,),
+		addTranslationUnitSourceFile:         proc "system"(this: ^ICompileRequest,translationUnitIndex: i32, path: cstring,),
+		addTranslationUnitSourceString:       proc "system"(this: ^ICompileRequest,translationUnitIndex: i32,path: cstring, source: cstring,),
+		addLibraryReference:                  proc "system"(this: ^ICompileRequest,basePath: cstring,libData: rawptr,libDataSize: uint,) -> Result,
+		addTranslationUnitSourceStringSpan:   proc "system"(this: ^ICompileRequest,translationUnitIndex: i32,path: cstring,sourceBegin: cstring, sourceEnd: cstring,),
+		addTranslationUnitSourceBlob:         proc "system"(this: ^ICompileRequest,translationUnitIndex: i32,path: cstring, sourceBlob: ^IBlob,),
+		addEntryPoint:               proc "system"(this: ^ICompileRequest,translationUnitIndex: i32,name: cstring,stage: Stage,) -> i32,
+		addEntryPointEx:             proc "system"(this: ^ICompileRequest,translationUnitIndex: i32,name: cstring,stage: Stage,genericArgCount: i32,genericArgs: [^]cstring,) -> i32,
+		setGlobalGenericArgs:        proc "system"(this: ^ICompileRequest,genericArgCount: i32,genericArgs: [^]cstring,) -> Result,
+		setTypeNameForGlobalExistentialTypeParam:     proc "system"(this: ^ICompileRequest,slotIndex: i32,typeName: cstring,) -> Result,
+		setTypeNameForEntryPointExistentialTypeParam: proc "system"(this: ^ICompileRequest,entryPointIndex: i32,slotIndex: i32,typeName: cstring,) -> Result,
+		setAllowGLSLInput:           proc "system"(this: ^ICompileRequest, value: bool,),
+		compile:                     proc "system"(this: ^ICompileRequest,) -> Result,
+		getDiagnosticOutput:         proc "system"(this: ^ICompileRequest,) -> cstring,
+		getDiagnosticOutputBlob:     proc "system"(this: ^ICompileRequest,outBlob: ^^IBlob,) -> Result,
+		getDependencyFileCount:      proc "system"(this: ^ICompileRequest,) -> i32,
+		getDependencyFilePath:       proc "system"(this: ^ICompileRequest,index: i32,) -> cstring,
+		getTranslationUnitCount:     proc "system"(this: ^ICompileRequest,) -> i32,
+		getEntryPointSource:         proc "system"(this: ^ICompileRequest,entryPointIndex: i32,) -> cstring,
+		getEntryPointCode:           proc "system"(this: ^ICompileRequest,entryPointIndex: i32,outSize: ^uint,) -> rawptr,
+		getEntryPointCodeBlob:       proc "system"(this: ^ICompileRequest,entryPointIndex: i32,targetIndex: i32,outBlob: ^^IBlob,) -> Result,
+		getEntryPointHostCallable:   proc "system"(this: ^ICompileRequest,entryPointIndex: i32,targetIndex: i32,outSharedLibrary: ^^ISharedLibrary,) -> Result,
+		getTargetCodeBlob:           proc "system"(this: ^ICompileRequest,targetIndex: i32,outBlob: ^^IBlob,) -> Result,
+		getTargetHostCallable:       proc "system"(this: ^ICompileRequest,targetIndex: i32,outSharedLibrary: ^^ISharedLibrary,) -> Result,
+		getCompileRequestCode:       proc "system"(this: ^ICompileRequest,outSize: ^uint,) -> rawptr,
+		getCompileRequestResultAsFileSystem: proc "system"(this: ^ICompileRequest,) -> ^IMutableFileSystem,
+		getContainerCode:            proc "system"(this: ^ICompileRequest,outBlob: ^^IBlob,) -> Result,
+		loadRepro:                   proc "system"(this: ^ICompileRequest,fileSystem: ^IFileSystem,data: rawptr,size: uint,) -> Result,
+		saveRepro:                   proc "system"(this: ^ICompileRequest,outBlob: ^^IBlob,) -> Result,
+		enableReproCapture:          proc "system"(this: ^ICompileRequest,) -> Result,
+		getProgram:                  proc "system"(this: ^ICompileRequest,outProgram: ^^IComponentType,) -> Result,
+		getEntryPoint:               proc "system"(this: ^ICompileRequest,entryPointIndex: Int,outEntryPoint: ^^IComponentType,) -> Result,
+		getModule:                   proc "system"(this: ^ICompileRequest,translationUnitIndex: Int,outModule: ^^IModule,) -> Result,
+		getSession:                  proc "system"(this: ^ICompileRequest,outSession: ^^ISession,) -> Result,
+		getReflection:               proc "system"(this: ^ICompileRequest,) -> ^SlangReflection,
+		addTargetCapability:         proc "system"(this: ^ICompileRequest,targetIndex: Int,capability: CapabilityID,) -> Result,
+		getProgramWithEntryPoints:   proc "system"(this: ^ICompileRequest,outProgram: ^^IComponentType,) -> Result,
+		isParameterLocationUsed:     proc "system"(this: ^ICompileRequest,entryPointIndex: Int,targetIndex: Int,category: ParameterCategory,spaceIndex: UInt,registerIndex: UInt,outUsed: ^bool,) -> Result,
+		setTargetLineDirectiveMode:  proc "system"(this: ^ICompileRequest,targetIndex: Int, mode: LineDirectiveMode,),
+		setTargetForceGLSLScalarBufferLayout: proc "system"(this: ^ICompileRequest,targetIndex: i32, forceScalarLayout: bool,),
+		overrideDiagnosticSeverity:  proc "system"(this: ^ICompileRequest,messageID: Int, overrideSeverity: Severity,),
+		getDiagnosticFlags:          proc "system"(this: ^ICompileRequest,) -> DiagnosticFlags,
+		setDiagnosticFlags:          proc "system"(this: ^ICompileRequest, flags: DiagnosticFlags,),
+		setDebugInfoFormat:          proc "system"(this: ^ICompileRequest, debugFormat: DebugInfoFormat,),
+		setEnableEffectAnnotations:  proc "system"(this: ^ICompileRequest, value: bool,),
+		setReportDownstreamTime:     proc "system"(this: ^ICompileRequest, value: bool,),
+		setReportPerfBenchmark:      proc "system"(this: ^ICompileRequest, value: bool,),
+		setSkipSPIRVValidation:      proc "system"(this: ^ICompileRequest, value: bool,),
+		setTargetUseMinimumSlangOptimization: proc "system"(this: ^ICompileRequest,targetIndex: i32, value: bool,),
+		setIgnoreCapabilityCheck:      proc "system"(this: ^ICompileRequest, value: bool,),
+		getCompileTimeProfile:         proc "system"(this: ^ICompileRequest,compileTimeProfile: ^^IProfiler,shouldClear: bool,) -> Result,
+		setTargetGenerateWholeProgram: proc "system"(this: ^ICompileRequest,targetIndex: i32, value: bool,),
+		setTargetForceDXLayout:        proc "system"(this: ^ICompileRequest,targetIndex: i32, value: bool,),
+		setTargetEmbedDownstreamIR:    proc "system"(this: ^ICompileRequest,targetIndex: i32, value: bool,),
+		setTargetForceCLayout:         proc "system"(this: ^ICompileRequest,targetIndex: i32, value: bool,),
+	},
 }
