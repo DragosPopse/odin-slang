@@ -617,7 +617,7 @@ IProfiler :: struct #raw_union {
 	},
 }
 
-DiagnosticsCallback :: #type proc "c"(message: cstring, userData: rawptr)
+DiagnosticCallback :: #type proc "c"(message: cstring, userData: rawptr)
 
 
 
@@ -1051,7 +1051,7 @@ ISession :: struct #raw_union {
 		getTypeRTTIMangledName               : proc "system"(this: ^ISession, type: ^TypeReflection, outNameBlob: ^^IBlob) -> Result,
 		getTypeConformanceWitnessMangledName : proc "system"(this: ^ISession, type: ^TypeReflection, interfaceType: ^TypeReflection, outNameBlob: ^^IBlob) -> Result,
 		getTypeConformanceWitnessSequentialID: proc "system"(this: ^ISession, type: ^TypeReflection, interfaceType: ^TypeReflection, outId: ^u32) -> Result,
-		createCompilerRequest                : proc "system"(this: ^ISession, outCompileRequest: ^^ICompileRequest) -> Result,
+		createCompileRequest                 : proc "system"(this: ^ISession, outCompileRequest: ^^ICompileRequest) -> Result,
 		createTypeConformanceComponentType   : proc "system"(this: ^ISession, type: ^TypeReflection, interfaceType: ^TypeReflection, outConformance: ^^ITypeConformance, conformanceIdOverride: Int, outDiagnostics: ^^IBlob) -> Result,
 		loadModuleFromIRBlob                 : proc "system"(this: ^ISession, moduleName: cstring, path: cstring, source: ^IBlob, outDiagnostics: ^^IBlob) -> ^IModule,
 		getLoadedModuleCount                 : proc "system"(this: ^ISession) -> Int,
@@ -1102,7 +1102,7 @@ IGlobalSession :: struct #raw_union {
 		getDefaultDownstreamCompiler      : proc "system"(this: ^IGlobalSession, sourceLanguage: SourceLanguage) -> PassThrough,
 		setLanguagePrelude                : proc "system"(this: ^IGlobalSession, sourceLanguage: SourceLanguage, preludeText: cstring),
 		getLanguagePrelude                : proc "system"(this: ^IGlobalSession, sourceLanguage: SourceLanguage, outPrelude: ^^IBlob),
-		createCompilerRequest             : proc "system"(this: ^IGlobalSession, outCompilerRequest: ^^ICompileRequest) -> Result, /* [deprecated] */
+		createCompileRequest              : proc "system"(this: ^IGlobalSession, outCompilerRequest: ^^ICompileRequest) -> Result, /* [deprecated] */
 		addBuiltins                       : proc "system"(this: ^IGlobalSession, sourcePath: cstring, sourceString: cstring),
 		setSharedLibraryLoader            : proc "system"(this: ^IGlobalSession, loader: ^ISharedLibraryLoader),
 		getSharedLibraryLoader            : proc "system"(this: ^IGlobalSession) -> ^ISharedLibraryLoader,
